@@ -1,0 +1,3 @@
+# Answer keys never go in the repo.
+.grading/
+__pycache__/

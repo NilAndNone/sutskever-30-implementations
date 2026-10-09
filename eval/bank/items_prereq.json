@@ -1,0 +1,712 @@
+[
+ {
+  "id": "D-01",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-la",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "矩阵 A 的形状是 (3, 4)，B 的形状是 (4, 5)。A·B（矩阵乘法）的形状是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "形状不匹配，无法相乘"
+   },
+   {
+    "k": "B",
+    "t": "(4, 4)"
+   },
+   {
+    "k": "C",
+    "t": "(3, 5)"
+   },
+   {
+    "k": "D",
+    "t": "(5, 3)"
+   }
+  ]
+ },
+ {
+  "id": "D-02",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-la",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "向量 a = [1, 2, 3]，b = [4, 5, 6]，点积 a·b 等于：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "15"
+   },
+   {
+    "k": "B",
+    "t": "32"
+   },
+   {
+    "k": "C",
+    "t": "21"
+   },
+   {
+    "k": "D",
+    "t": "[4, 10, 18]"
+   }
+  ]
+ },
+ {
+  "id": "D-03",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-la",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "W 是 m×n 矩阵，x 是 n 维列向量，y = Wx。y 的维度是 ________；∂y_i/∂x_j = ________。",
+  "opts": []
+ },
+ {
+  "id": "D-04",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-la",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "向量 [1, 0] 和 [1, 1] 的余弦相似度约为：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "0.707"
+   },
+   {
+    "k": "B",
+    "t": "0"
+   },
+   {
+    "k": "C",
+    "t": "0.5"
+   },
+   {
+    "k": "D",
+    "t": "1"
+   }
+  ]
+ },
+ {
+  "id": "D-05",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-calc",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "sigmoid 函数 σ(x) = 1/(1+e^{−x}) 的导数是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "σ(x)²"
+   },
+   {
+    "k": "B",
+    "t": "σ(x)(1 − σ(x))"
+   },
+   {
+    "k": "C",
+    "t": "1 − σ(x)²"
+   },
+   {
+    "k": "D",
+    "t": "e^{−x}"
+   }
+  ]
+ },
+ {
+  "id": "D-06",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-calc",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "y = (3x + 1)²，在 x = 1 处 dy/dx = ________。",
+  "opts": []
+ },
+ {
+  "id": "D-07",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-calc",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "L = f(g(h(x)))，dL/dx 等于：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "f′(g(h(x))) + g′(h(x)) + h′(x)"
+   },
+   {
+    "k": "B",
+    "t": "f′(g(h(x)))·g′(h(x))·h′(x)"
+   },
+   {
+    "k": "C",
+    "t": "f′(x)·g′(x)·h′(x)"
+   },
+   {
+    "k": "D",
+    "t": "f′(h(x))·g′(x)"
+   }
+  ]
+ },
+ {
+  "id": "D-08",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-calc",
+  "tags": [
+   "prereq"
+  ],
+  "points": 3,
+  "stem": "梯度下降更新 θ ← θ − η∇L(θ)。以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "梯度 ∇L 指向 L 局部增长最快的方向"
+   },
+   {
+    "k": "B",
+    "t": "学习率 η 太大时 loss 可能震荡甚至发散"
+   },
+   {
+    "k": "C",
+    "t": "∇L = 0 的点一定是最小值"
+   },
+   {
+    "k": "D",
+    "t": "只要 η 足够小，梯度下降一定能找到任意函数的全局最小值"
+   },
+   {
+    "k": "E",
+    "t": "η 足够小时，沿负梯度走一小步会让 L 下降（在 ∇L ≠ 0 时）"
+   }
+  ]
+ },
+ {
+  "id": "D-09",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-prob",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "掷一个均匀的六面骰子，点数的期望是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "3.5"
+   },
+   {
+    "k": "B",
+    "t": "6"
+   },
+   {
+    "k": "C",
+    "t": "3"
+   },
+   {
+    "k": "D",
+    "t": "21"
+   }
+  ]
+ },
+ {
+  "id": "D-10",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-prob",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "X 服从参数为 p 的伯努利分布（取 1 的概率为 p）。Var(X) = ________；p = 0.5 时等于 ________。",
+  "opts": []
+ },
+ {
+  "id": "D-11",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-prob",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "在 8 个等概率结果上的均匀分布，香农熵是多少比特？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "8"
+   },
+   {
+    "k": "B",
+    "t": "log₂3"
+   },
+   {
+    "k": "C",
+    "t": "3"
+   },
+   {
+    "k": "D",
+    "t": "1"
+   }
+  ]
+ },
+ {
+  "id": "D-12",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-prob",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "某病患病率 1%。检测的灵敏度 99%（患者测出阳性的概率），假阳性率 5%。一个人测出阳性，他真患病的概率约为：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "95%"
+   },
+   {
+    "k": "B",
+    "t": "1%"
+   },
+   {
+    "k": "C",
+    "t": "17%"
+   },
+   {
+    "k": "D",
+    "t": "99%"
+   }
+  ]
+ },
+ {
+  "id": "D-13",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-prob",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "训练模型时通常最大化 Σ log p(x_i)，而不是直接最大化 Π p(x_i)。最主要的原因是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "log 能让概率变成正数"
+   },
+   {
+    "k": "B",
+    "t": "两者的最优解不同，log 版本更好"
+   },
+   {
+    "k": "C",
+    "t": "只有 log 版本才能用梯度下降"
+   },
+   {
+    "k": "D",
+    "t": "许多小于 1 的概率连乘会在浮点数下溢为 0；取 log 后变成求和，数值稳定，求导也方便"
+   }
+  ]
+ },
+ {
+  "id": "D-14",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-py",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "`np.array([[1, 2], [3, 4]]).sum(axis=0)` 的结果是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "[3, 7]"
+   },
+   {
+    "k": "B",
+    "t": "[[4, 6]]"
+   },
+   {
+    "k": "C",
+    "t": "10"
+   },
+   {
+    "k": "D",
+    "t": "[4, 6]"
+   }
+  ]
+ },
+ {
+  "id": "D-15",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-py",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "`a` 的形状是 (3, 1)，`b` 的形状是 (4,)。`a + b` 的形状是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "报错，形状不匹配"
+   },
+   {
+    "k": "B",
+    "t": "(3, 1)"
+   },
+   {
+    "k": "C",
+    "t": "(4,)"
+   },
+   {
+    "k": "D",
+    "t": "(3, 4)"
+   }
+  ]
+ },
+ {
+  "id": "D-16",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-py",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "执行下面的代码后，`x[0]` 的值是：\n\n```python\nx = np.zeros(3)\ny = x\ny[0] = 5\n```",
+  "opts": [
+   {
+    "k": "A",
+    "t": "报错"
+   },
+   {
+    "k": "B",
+    "t": "0"
+   },
+   {
+    "k": "C",
+    "t": "None"
+   },
+   {
+    "k": "D",
+    "t": "5"
+   }
+  ]
+ },
+ {
+  "id": "D-17",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-py",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "A 的形状是 (2, 3)。`A.T @ A` 的形状是 ________。",
+  "opts": []
+ },
+ {
+  "id": "D-18",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-ml",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "把数据分成训练集、验证集、测试集后，调超参数（学习率、层数等）应该依据：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "验证集上的表现"
+   },
+   {
+    "k": "B",
+    "t": "训练集上的表现"
+   },
+   {
+    "k": "C",
+    "t": "测试集上的表现"
+   },
+   {
+    "k": "D",
+    "t": "三者的平均"
+   }
+  ]
+ },
+ {
+  "id": "D-19",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-ml",
+  "tags": [
+   "prereq"
+  ],
+  "points": 3,
+  "stem": "以下哪些是过拟合的典型迹象，或是缓解过拟合的合理手段？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "训练 loss 持续下降，验证 loss 开始上升"
+   },
+   {
+    "k": "B",
+    "t": "在不增加数据的情况下把模型做得更大"
+   },
+   {
+    "k": "C",
+    "t": "增加训练数据或做数据增强"
+   },
+   {
+    "k": "D",
+    "t": "加入 dropout 或 weight decay 等正则化"
+   },
+   {
+    "k": "E",
+    "t": "训练集准确率和验证集准确率都很低"
+   }
+  ]
+ },
+ {
+  "id": "D-20",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-ml",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "softmax([0, ln 3]) 等于：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "[0.25, 0.75]"
+   },
+   {
+    "k": "B",
+    "t": "[1, 3]"
+   },
+   {
+    "k": "C",
+    "t": "[0, 1]"
+   },
+   {
+    "k": "D",
+    "t": "[0.5, 0.5]"
+   }
+  ]
+ },
+ {
+  "id": "D-21",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-ml",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "分类模型给正确类别的概率是 0.25，这个样本的交叉熵 loss（自然对数）约为 ________。",
+  "opts": []
+ },
+ {
+  "id": "D-22",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [],
+  "cluster": "pre-nn",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "神经网络的隐藏层为什么必须用非线性激活函数（如 ReLU）？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "为了防止过拟合"
+   },
+   {
+    "k": "B",
+    "t": "没有非线性，多层线性变换叠起来仍然等价于一个线性变换，网络深度就没有意义"
+   },
+   {
+    "k": "C",
+    "t": "为了让训练更快"
+   },
+   {
+    "k": "D",
+    "t": "为了让输出变成概率"
+   }
+  ]
+ },
+ {
+  "id": "D-23",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-nn",
+  "tags": [
+   "prereq"
+  ],
+  "points": 2,
+  "stem": "一个 MLP：输入 784 维 → 隐藏层 100 个神经元 → 输出 10 类，每层都有偏置。参数总数是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "79,400"
+   },
+   {
+    "k": "B",
+    "t": "894"
+   },
+   {
+    "k": "C",
+    "t": "79,510"
+   },
+   {
+    "k": "D",
+    "t": "78,500"
+   }
+  ]
+ },
+ {
+  "id": "D-24",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-nn",
+  "tags": [
+   "prereq"
+  ],
+  "points": 3,
+  "stem": "关于梯度消失，以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "梯度消失主要是学习率设得太大导致的"
+   },
+   {
+    "k": "B",
+    "t": "sigmoid 的导数最大只有 0.25，多层连乘后梯度会指数级变小"
+   },
+   {
+    "k": "C",
+    "t": "ReLU 在正区间导数为 1，缓解了这个问题"
+   },
+   {
+    "k": "D",
+    "t": "增大 batch size 可以解决梯度消失"
+   },
+   {
+    "k": "E",
+    "t": "残差连接给梯度提供了一条直接通路，也能缓解梯度消失"
+   }
+  ]
+ },
+ {
+  "id": "D-25",
+  "form": "P0",
+  "pool": "diagnostic",
+  "type": "short",
+  "difficulty": "L2",
+  "papers": [],
+  "cluster": "pre-nn",
+  "tags": [
+   "prereq"
+  ],
+  "points": 5,
+  "stem": "单个神经元 y = σ(w·x + b)，损失 L = ½(y − t)²，其中 x、t 是常数。\n\n(a) 写出 ∂L/∂w。\n(b) 用一句话说明\"反向传播\"在做什么。",
+  "opts": []
+ }
+]

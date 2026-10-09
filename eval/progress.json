@@ -1,0 +1,627 @@
+{
+ "sessions": [
+  {
+   "sessionId": "baseline-A",
+   "title": "基线测评 · A 卷",
+   "kind": "checkpoint",
+   "form": "A",
+   "gradedAt": "2026-10-09T06:49:47+00:00",
+   "total": 6,
+   "max": 100,
+   "byCluster": {
+    "attn": {
+     "got": 0,
+     "max": 14
+    },
+    "cnn": {
+     "got": 0,
+     "max": 12
+    },
+    "scale": {
+     "got": 2,
+     "max": 11
+    },
+    "rnn": {
+     "got": 2,
+     "max": 17
+    },
+    "retr": {
+     "got": 2,
+     "max": 12
+    },
+    "info": {
+     "got": 0,
+     "max": 22
+    },
+    "rel": {
+     "got": 0,
+     "max": 12
+    }
+   },
+   "byDifficulty": {
+    "L1": {
+     "got": 4,
+     "max": 21
+    },
+    "L2": {
+     "got": 2,
+     "max": 47
+    },
+    "L3": {
+     "got": 0,
+     "max": 32
+    }
+   },
+   "misconceptions": [],
+   "shaky": [
+    "A-S10",
+    "A-S14"
+   ]
+  },
+  {
+   "sessionId": "prereq-P0",
+   "title": "前置知识诊断",
+   "kind": "diagnostic",
+   "form": "P0",
+   "gradedAt": "2026-10-09T10:04:17+00:00",
+   "total": 17,
+   "max": 56,
+   "byCluster": {
+    "pre-la": {
+     "got": 2,
+     "max": 8
+    },
+    "pre-calc": {
+     "got": 7,
+     "max": 9
+    },
+    "pre-prob": {
+     "got": 2,
+     "max": 10
+    },
+    "pre-py": {
+     "got": 2,
+     "max": 8
+    },
+    "pre-ml": {
+     "got": 2,
+     "max": 9
+    },
+    "pre-nn": {
+     "got": 2,
+     "max": 12
+    }
+   },
+   "byDifficulty": {
+    "L1": {
+     "got": 10,
+     "max": 17
+    },
+    "L2": {
+     "got": 7,
+     "max": 39
+    }
+   },
+   "misconceptions": [
+    "D-01"
+   ],
+   "shaky": [
+    "D-16"
+   ]
+  }
+ ],
+ "itemHistory": {
+  "A-S1": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S2": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S3": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S4": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": 1
+   }
+  ],
+  "A-S5": [
+   {
+    "sessionId": "baseline-A",
+    "score": 2,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "A-S6": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S7": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S8": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S9": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S10": [
+   {
+    "sessionId": "baseline-A",
+    "score": 2,
+    "max": 2,
+    "conf": 1
+   }
+  ],
+  "A-S11": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S12": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S13": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-S14": [
+   {
+    "sessionId": "baseline-A",
+    "score": 2,
+    "max": 2,
+    "conf": 1
+   }
+  ],
+  "A-S15": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-M1": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": 1
+   }
+  ],
+  "A-M2": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M3": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M4": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M5": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M6": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M7": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M8": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M9": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-M10": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 3,
+    "conf": null
+   }
+  ],
+  "A-F1": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F2": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F3": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F4": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F5": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F6": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F7": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F8": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F9": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-F10": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "A-Q1": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 5,
+    "conf": null
+   }
+  ],
+  "A-Q2": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 5,
+    "conf": null
+   }
+  ],
+  "A-Q3": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 5,
+    "conf": null
+   }
+  ],
+  "A-Q4": [
+   {
+    "sessionId": "baseline-A",
+    "score": 0,
+    "max": 5,
+    "conf": null
+   }
+  ],
+  "D-01": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": 3
+   }
+  ],
+  "D-02": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 3
+   }
+  ],
+  "D-04": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "D-05": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "D-07": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 3
+   }
+  ],
+  "D-09": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 3
+   }
+  ],
+  "D-11": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "D-12": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "D-13": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "D-14": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "D-15": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "D-16": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 1
+   }
+  ],
+  "D-18": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 3
+   }
+  ],
+  "D-20": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "D-22": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "D-23": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "D-08": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 1,
+    "max": 3,
+    "conf": 2
+   }
+  ],
+  "D-19": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 3,
+    "conf": 2
+   }
+  ],
+  "D-24": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 3,
+    "conf": 1
+   }
+  ],
+  "D-03": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "D-06": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 2,
+    "max": 2,
+    "conf": 3
+   }
+  ],
+  "D-10": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "D-17": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": 2
+   }
+  ],
+  "D-21": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 2,
+    "conf": null
+   }
+  ],
+  "D-25": [
+   {
+    "sessionId": "prereq-P0",
+    "score": 0,
+    "max": 5,
+    "conf": null
+   }
+  ]
+ }
+}

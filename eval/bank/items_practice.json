@@ -1,0 +1,2784 @@
+[
+ {
+  "id": "P-cnn-01",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   7
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 2,
+  "stem": "AlexNet 原文中，全连接层的 dropout（p=0.5）在测试时是怎么处理的？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "测试时仍然随机丢弃，多次前向后取平均"
+   },
+   {
+    "k": "B",
+    "t": "训练时把保留下来的输出除以 0.5，测试时不做任何处理"
+   },
+   {
+    "k": "C",
+    "t": "测试时使用所有神经元，但把它们的输出乘以 0.5"
+   },
+   {
+    "k": "D",
+    "t": "测试时把带 dropout 的全连接层整个去掉"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-02",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   7
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 2,
+  "stem": "AlexNet 第一层：输入 227×227×3，96 个 11×11×3 卷积核，stride 4，无 padding（不考虑双 GPU 拆分）。该层输出的空间尺寸和参数量（含偏置）是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "55×55，34,944"
+   },
+   {
+    "k": "B",
+    "t": "56×56，34,944"
+   },
+   {
+    "k": "C",
+    "t": "55×55，290,400"
+   },
+   {
+    "k": "D",
+    "t": "54×54，11,616"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-03",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   10
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 2,
+  "stem": "He et al. (2016) 在 CIFAR-10 上训练了 1202 层的 ResNet，其测试误差比 110 层的还高。作者的解释是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "层数太多导致梯度消失，网络无法训练"
+   },
+   {
+    "k": "B",
+    "t": "退化问题再次出现：1202 层网络的训练误差显著高于 110 层"
+   },
+   {
+    "k": "C",
+    "t": "两者训练误差相近（都很低），测试误差更高，作者认为是过拟合"
+   },
+   {
+    "k": "D",
+    "t": "数值溢出导致训练发散"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-04",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   15
+  ],
+  "cluster": "cnn",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`15_identity_mappings_resnet.ipynb`：\n\n```python\ndef batch_norm_1d(x, gamma=1.0, beta=0.0, eps=1e-5):\n    mean = np.mean(x)\n    var = np.var(x)\n    x_normalized = (x - mean) / np.sqrt(var + eps)\n    return gamma * x_normalized + beta\n\nclass OriginalResidualBlock:\n    def forward(self, x):\n        out = np.dot(self.W1, x)\n        out = batch_norm_1d(out)\n        out = relu(out)\n        out = np.dot(self.W2, out)\n        out = batch_norm_1d(out)\n        out = out + x\n        out = relu(out)\n        return out\n\nclass PreActivationResidualBlock:\n    def forward(self, x):\n        out = batch_norm_1d(x)\n        out = relu(out)\n        out = np.dot(self.W1, out)\n        out = batch_norm_1d(out)\n        out = relu(out)\n        out = np.dot(self.W2, out)\n        out = out + x\n        return out\n\ndef test_identity_mapping(block, num_tests=100):\n    block.W1 = np.zeros_like(block.W1)\n    block.W2 = np.zeros_like(block.W2)\n    errors = []\n    for _ in range(num_tests):\n        x = np.random.randn(block.dim)\n        y = block.forward(x)\n        error = np.linalg.norm(y - x)\n        errors.append(error)\n    return np.mean(errors), np.std(errors)\n```\n\n对两种 block（dim=8）运行 `test_identity_mapping`，平均误差最可能是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "两者都约为 0，因为残差分支的输出为 0"
+   },
+   {
+    "k": "B",
+    "t": "original 约为 1.7～1.9（即 x 负分量部分的范数），pre-act 恰好为 0"
+   },
+   {
+    "k": "C",
+    "t": "两者都是 NaN，因为全零向量方差为 0，BN 里出现除以 0"
+   },
+   {
+    "k": "D",
+    "t": "original 为 0，pre-act 大于 0，因为 pre-act 在输入端做了 BN，改变了 x"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-05",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   11
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 2,
+  "stem": "Yu & Koltun (2016) 在稠密预测（如语义分割）中使用 dilated 卷积，核心理由是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "减少参数量，让模型能在移动端运行"
+   },
+   {
+    "k": "B",
+    "t": "替代 pooling 做下采样，降低特征图分辨率以节省计算"
+   },
+   {
+    "k": "C",
+    "t": "在权重中引入随机稀疏性，起正则化作用"
+   },
+   {
+    "k": "D",
+    "t": "在不降低分辨率、不增加每层参数的前提下，让感受野随层数指数增长"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-06",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   11
+  ],
+  "cluster": "cnn",
+  "tags": [
+   "code"
+  ],
+  "points": 3,
+  "stem": "`11_dilated_convolutions.ipynb`：\n\n```python\ndef dilated_conv2d(input_img, kernel, dilation=1):\n    H, W = input_img.shape\n    kH, kW = kernel.shape\n    eff_kH = (kH - 1) * dilation + 1\n    eff_kW = (kW - 1) * dilation + 1\n    out_H = H - eff_kH + 1\n    out_W = W - eff_kW + 1\n    ...\n\nclass MultiScaleContext:\n    def __init__(self, kernel_size=3):\n        self.kernel_size = kernel_size\n        self.kernels = [\n            np.random.randn(kernel_size, kernel_size) * 0.1\n            for _ in range(4)\n        ]\n        self.dilations = [1, 2, 4, 8]\n\n    def forward(self, input_img):\n        outputs = []\n        current = input_img\n        for kernel, dilation in zip(self.kernels, self.dilations):\n            out = dilated_conv2d(current, kernel, dilation)\n            outputs.append(out)\n            pad_h = (input_img.shape[0] - out.shape[0]) // 2\n            pad_w = (input_img.shape[1] - out.shape[1]) // 2\n            current = np.pad(out, ((pad_h, pad_h), (pad_w, pad_w)), mode='constant')\n            current = current[:input_img.shape[0], :input_img.shape[1]]\n        return outputs, current\n\nprint(f\"Receptive fields at each layer:\")\nfor i, d in enumerate(msc.dilations):\n    rf = 1 + 2 * d * (len(msc.dilations) - 1)\n    print(f\"  Layer {i+1} (dilation={d}): {rf}x{rf}\")\n```\n\n以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "代码打印出的第 4 层“感受野”是 49×49"
+   },
+   {
+    "k": "B",
+    "t": "单层 dilated 卷积的感受野随 dilation 指数增长，所以 notebook 里 “Receptive field grows exponentially with dilation!” 的说法是对的"
+   },
+   {
+    "k": "C",
+    "t": "第 4 层输出（四层累积）的真实感受野是 31×31"
+   },
+   {
+    "k": "D",
+    "t": "先卷积再在边缘补零，与先补零再卷积（same padding）得到的结果完全相同"
+   },
+   {
+    "k": "E",
+    "t": "dilated_conv2d 不加 padding，输出每条边比输入少 d 个像素，所以随后 np.pad 每边补 d 个 0 能恢复原尺寸"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-07",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [
+   10
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 ResNet 原论文（He et al. 2016），以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "恒等 shortcut 不引入额外参数，除了逐元素相加，也几乎不增加计算"
+   },
+   {
+    "k": "B",
+    "t": "维度增加时只能用 1×1 投影 shortcut，零填充的恒等 shortcut 无法训练"
+   },
+   {
+    "k": "C",
+    "t": "ImageNet 上最深的模型有 152 层"
+   },
+   {
+    "k": "D",
+    "t": "每个卷积之后、激活之前使用 Batch Normalization"
+   },
+   {
+    "k": "E",
+    "t": "主要靠 dropout 防止深层网络过拟合"
+   },
+   {
+    "k": "F",
+    "t": "每个残差块只包含 1 个卷积层"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-08",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   7
+  ],
+  "cluster": "cnn",
+  "tags": [
+   "code"
+  ],
+  "points": 3,
+  "stem": "`07_alexnet_cnn.ipynb`：\n\n```python\nclass AlexNetSimplified:\n    def __init__(self, num_classes=10):\n        self.conv1_filters = np.random.randn(32, 3, 3, 3) * 0.01\n        self.conv1_bias = np.zeros(32)\n        self.conv2_filters = np.random.randn(64, 32, 3, 3) * 0.01\n        self.conv2_bias = np.zeros(64)\n        self.conv3_filters = np.random.randn(128, 64, 3, 3) * 0.01\n        self.conv3_bias = np.zeros(128)\n        # FC layers (after conv: 128 * 4 * 4 = 2048)\n        self.fc1_weights = np.random.randn(2048, 512) * 0.01\n        self.fc1_bias = np.zeros(512)\n        self.fc2_weights = np.random.randn(512, num_classes) * 0.01\n        self.fc2_bias = np.zeros(num_classes)\n\n    def forward(self, x, use_dropout=False, dropout_rate=0.5):\n        conv1 = conv2d(x, self.conv1_filters, stride=1, padding=1)\n        conv1 += self.conv1_bias[:, np.newaxis, np.newaxis]\n        conv1 = relu(conv1)\n        pool1 = max_pool2d(conv1, pool_size=2, stride=2)  # 32 x 16 x 16\n        conv2 = conv2d(pool1, self.conv2_filters, stride=1, padding=1)\n        conv2 += self.conv2_bias[:, np.newaxis, np.newaxis]\n        conv2 = relu(conv2)\n        pool2 = max_pool2d(conv2, pool_size=2, stride=2)  # 64 x 8 x 8\n        conv3 = conv2d(pool2, self.conv3_filters, stride=1, padding=1)\n        conv3 += self.conv3_bias[:, np.newaxis, np.newaxis]\n        conv3 = relu(conv3)\n        pool3 = max_pool2d(conv3, pool_size=2, stride=2)  # 128 x 4 x 4\n        flattened = pool3.reshape(-1)\n        fc1 = np.dot(flattened, self.fc1_weights) + self.fc1_bias\n        fc1 = relu(fc1)\n        ...\n```\n\n对照 AlexNet 原文（Krizhevsky et al. 2012），以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "原文有 5 个卷积层和 3 个全连接层，代码只有 3 个卷积层和 2 个全连接层"
+   },
+   {
+    "k": "B",
+    "t": "原文第一层是 96 个 11×11、stride 4 的卷积核，代码第一层是 3×3、stride 1"
+   },
+   {
+    "k": "C",
+    "t": "fc1 的输入维度 2048 算错了，应该是 128×8×8 = 8192"
+   },
+   {
+    "k": "D",
+    "t": "代码的初始化与原文完全一致：权重 std 0.01，偏置全部为 0"
+   },
+   {
+    "k": "E",
+    "t": "代码中每个卷积层后面都接了池化；原文第 3、4 层卷积之后没有池化层"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-09",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   15
+  ],
+  "cluster": "cnn",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 3,
+  "stem": "`15_identity_mappings_resnet.ipynb` 用下面的函数比较 original 与 pre-activation 的梯度流，并据此得出 “Pre-activation maintains stronger gradients!”：\n\n```python\ndef compute_gradient_flow(block_type, num_layers=10, input_dim=8):\n    x = np.random.randn(input_dim)\n    if block_type == 'original':\n        blocks = [OriginalResidualBlock(input_dim) for _ in range(num_layers)]\n    else:\n        blocks = [PreActivationResidualBlock(input_dim) for _ in range(num_layers)]\n    activations = [x]\n    current = x\n    for block in blocks:\n        current = block.forward(current)\n        activations.append(current.copy())\n\n    grad = np.ones(input_dim)  # Gradient from loss\n    gradients = [grad]\n    for i in range(num_layers):\n        if block_type == 'original':\n            grad_through_residual = grad * np.random.uniform(0.5, 1.0, input_dim)\n            grad = grad + grad_through_residual  # Identity + residual\n        else:\n            grad_through_residual = grad * np.random.uniform(0.7, 1.0, input_dim)\n            grad = grad + grad_through_residual  # Better gradient flow\n        gradients.append(grad.copy())\n    return activations, gradients\n```\n\n以下批评正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "两种 block 用的是同一个全局随机种子，所以这是公平对照，结论可信"
+   },
+   {
+    "k": "B",
+    "t": "每层梯度乘的因子来自 np.random.uniform，pre-act 的区间 [0.7, 1.0] 本来就比 original 的 [0.5, 1.0] 大，结论在写代码时就已经注定"
+   },
+   {
+    "k": "C",
+    "t": "前向算出的 activations 和 block 的权重在“反向”部分完全没有被用到"
+   },
+   {
+    "k": "D",
+    "t": "每层 grad 乘以 (1+u)，20 层后梯度放大约 1.5²⁰～2²⁰ 倍，这恰好印证了 P15 中恒等映射会导致梯度爆炸"
+   },
+   {
+    "k": "E",
+    "t": "要真正比较，应该对真实的 block 做反向传播（或数值梯度），测量 ∂E/∂x_l 随深度的变化，最好再配合真实的训练曲线"
+   }
+  ]
+ },
+ {
+  "id": "P-cnn-10",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   10
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 2,
+  "stem": "输入 256 通道的 bottleneck 残差块（1×1 卷积 256→64，3×3 卷积 64→64，1×1 卷积 64→256，不计偏置和 BN）的参数量为 ________；如果换成两个 256→256 的 3×3 卷积，参数量为 ________。",
+  "opts": []
+ },
+ {
+  "id": "P-cnn-11",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   11
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 2,
+  "stem": "Yu & Koltun (2016) 的 context module 前 7 层都是 3×3 卷积，dilation 依次为 1, 1, 2, 4, 8, 16, 1。第 7 层输出的感受野边长是 ________。作者发现用标准随机初始化训练这个模块效果不好，改用了 ________ 初始化。",
+  "opts": []
+ },
+ {
+  "id": "P-cnn-12",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L1",
+  "papers": [
+   7
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 2,
+  "stem": "AlexNet 共有约 ________ 个参数。在 CIFAR-10 上，一个 4 层卷积网络用 ReLU 达到 25% 训练误差的速度比用 tanh 快约 ________ 倍。",
+  "opts": []
+ },
+ {
+  "id": "P-cnn-13",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   11
+  ],
+  "cluster": "cnn",
+  "tags": [],
+  "points": 5,
+  "stem": "在稠密预测（语义分割）中扩大感受野有三种做法：(1) pooling/stride 下采样，最后再上采样；(2) 直接用更大的卷积核；(3) dilated 卷积。\n\n(a) 比较三种做法在分辨率和参数量上的代价。以 64→64 通道为例，计算一个 3×3、dilation=4 的卷积与一个覆盖同样 9×9 范围的普通卷积各自的参数量（不计偏置）。\n\n(b) Yu & Koltun 的 front-end 去掉了 VGG-16 最后两个 pooling 层（输出步长从 32 变为 8）。与保留 pooling 相比，最后几层每张特征图的空间位置数变为多少倍？这会带来什么代价？\n\n(c) 为什么不能只去掉 pooling、后续卷积却不做 dilate？",
+  "opts": []
+ },
+ {
+  "id": "P-cnn-14",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   7
+  ],
+  "cluster": "cnn",
+  "tags": [
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`07_alexnet_cnn.ipynb` 可视化了 `AlexNetSimplified` 的第一层卷积核：\n\n```python\nfilters = alexnet.conv1_filters  # Shape: (32, 3, 3, 3)\n...\nplt.suptitle('Conv1 Filters (32 filters, 3x3, RGB)', fontsize=14)\nprint(\"These filters learn to detect edges, colors, and simple patterns\")\n```\n\n(a) 这句结论有什么方法论问题？\n\n(b) AlexNet 原文还用了一种基于 PCA 的颜色增强。简述做法和作用。\n\n(c) 如果要在这个 notebook 里真正支持“第一层学到了边缘/颜色检测器”，至少需要做哪些改动？",
+  "opts": []
+ },
+ {
+  "id": "P-attn-01",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   13
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 2,
+  "stem": "根据 Vaswani et al. (2017) 的 Table 1，self-attention 层的每层计算复杂度和任意两个位置之间的最大路径长度分别是（n 为序列长度，d 为表示维度）：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "O(n·d²)，O(n)"
+   },
+   {
+    "k": "B",
+    "t": "O(n²·d)，O(1)"
+   },
+   {
+    "k": "C",
+    "t": "O(n²·d)，O(log n)"
+   },
+   {
+    "k": "D",
+    "t": "O(k·n·d²)，O(log_k n)"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-02",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   13
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 2,
+  "stem": "按 Vaswani et al. (2017) Table 1 的每层复杂度，取 d = 1024、n = 4096，一层 self-attention 与一层 recurrent 的计算量之比约为：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "1/4"
+   },
+   {
+    "k": "B",
+    "t": "1"
+   },
+   {
+    "k": "C",
+    "t": "16"
+   },
+   {
+    "k": "D",
+    "t": "4"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-03",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   14
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 2,
+  "stem": "Bahdanau et al. (2015) 认为传统 RNN encoder–decoder 的主要瓶颈是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "把整个源句压缩成一个固定长度的向量，句子越长性能下降越明显"
+   },
+   {
+    "k": "B",
+    "t": "目标词表太大，softmax 计算太慢"
+   },
+   {
+    "k": "C",
+    "t": "RNN 无法并行，训练太慢"
+   },
+   {
+    "k": "D",
+    "t": "解码器无法使用 beam search"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-04",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   14
+  ],
+  "cluster": "attn",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`14_bahdanau_attention.ipynb`：\n\n```python\nclass AttentionDecoder:\n    def __init__(self, output_size, hidden_size, annotation_size):\n        ...\n        # Output layer\n        self.W_out = np.random.randn(output_size, hidden_size + annotation_size + output_size) * 0.01\n        self.b_out = np.zeros((output_size, 1))\n\nclass Seq2SeqWithAttention:\n    def __init__(self, input_vocab_size, output_vocab_size, hidden_size=32):\n        self.input_embedding = np.random.randn(input_vocab_size, hidden_size) * 0.01\n        self.output_embedding = np.random.randn(output_vocab_size, hidden_size) * 0.01\n        self.encoder = EncoderRNN(hidden_size, hidden_size)\n        annotation_size = 2 * hidden_size\n        self.decoder = AttentionDecoder(hidden_size, hidden_size, annotation_size)\n\ninput_vocab_size = 20   # Source language vocab\noutput_vocab_size = 20  # Target language vocab\nmodel = Seq2SeqWithAttention(input_vocab_size, output_vocab_size, hidden_size=16)\n```\n\n解码器每一步 `output` 的形状是什么？有什么问题？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "(20, 1)，正好对应目标词表，没有问题"
+   },
+   {
+    "k": "B",
+    "t": "(32, 1)，等于 annotation 的维度"
+   },
+   {
+    "k": "C",
+    "t": "(16, 1)：output_size 被传成了 hidden_size，输出没有投影到 20 维的目标词表，得不到词上的分布"
+   },
+   {
+    "k": "D",
+    "t": "(64, 1)，等于 W_out 的输入维度"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-05",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   6
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 2,
+  "stem": "Pointer Network 的打分为 u_j^i = vᵀ tanh(W₁ e_j + W₂ d_i)，j = 1..n。输入点数从 n 增加到 2n 时（隐藏维度不变）：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "参数量翻倍，每一步解码的打分次数也翻倍"
+   },
+   {
+    "k": "B",
+    "t": "参数量不变，每一步解码的打分次数翻倍"
+   },
+   {
+    "k": "C",
+    "t": "参数量不变，每一步解码的打分次数也不变"
+   },
+   {
+    "k": "D",
+    "t": "参数量翻倍，每一步解码的打分次数不变"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-06",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [
+   13
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 Transformer base 模型（Vaswani et al. 2017）的设置，以下正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "编码器和解码器各有 12 层"
+   },
+   {
+    "k": "B",
+    "t": "d_model = 512，FFN 内层维度 d_ff = 2048"
+   },
+   {
+    "k": "C",
+    "t": "Adam 的 β₂ = 0.999"
+   },
+   {
+    "k": "D",
+    "t": "h = 8 个 head，每个 head 的 d_k = d_v = 64"
+   },
+   {
+    "k": "E",
+    "t": "训练时使用 label smoothing，ε_ls = 0.1"
+   },
+   {
+    "k": "F",
+    "t": "只能使用可学习的位置嵌入，正弦位置编码效果明显更差"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-07",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   13
+  ],
+  "cluster": "attn",
+  "tags": [
+   "code"
+  ],
+  "points": 3,
+  "stem": "`13_attention_is_all_you_need.ipynb`：\n\n```python\nclass FeedForward:\n    def __init__(self, d_model, d_ff):\n        self.W1 = np.random.randn(d_model, d_ff) * 0.1\n        self.b1 = np.zeros(d_ff)\n        self.W2 = np.random.randn(d_ff, d_model) * 0.1\n        self.b2 = np.zeros(d_model)\n\n    def forward(self, x):\n        hidden = np.maximum(0, np.dot(x, self.W1) + self.b1)\n        output = np.dot(hidden, self.W2) + self.b2\n        return output\n\nclass LayerNorm:\n    def __init__(self, d_model, eps=1e-6):\n        self.gamma = np.ones(d_model)\n        self.beta = np.zeros(d_model)\n        self.eps = eps\n\n    def forward(self, x):\n        mean = x.mean(axis=-1, keepdims=True)\n        std = x.std(axis=-1, keepdims=True)\n        normalized = (x - mean) / (std + self.eps)\n        output = self.gamma * normalized + self.beta\n        return output\n```\n\n（x 的形状为 (seq_len, d_model)。）以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "LayerNorm 在最后一维（每个位置的特征）上求均值和标准差，结果与 batch 中的其他样本无关"
+   },
+   {
+    "k": "B",
+    "t": "这里 eps 加在 std 上，而不是加在方差里；当 std 远大于 eps 时，它与 (x−μ)/√(σ²+ε) 几乎相同"
+   },
+   {
+    "k": "C",
+    "t": "gamma 和 beta 是根据当前输入的统计量算出来的，不是可学习参数"
+   },
+   {
+    "k": "D",
+    "t": "d_model = 64、d_ff = 256 时，FeedForward（含偏置）的参数量是 32,768"
+   },
+   {
+    "k": "E",
+    "t": "FeedForward 对序列中每个位置独立使用同一个两层 MLP，相当于两个 kernel size 为 1 的卷积"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-08",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   14
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 Bahdanau et al. (2015) 的 RNNsearch，以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "对齐模型 a 是一个前馈网络，与翻译模型的其余部分联合训练，不需要对齐标注"
+   },
+   {
+    "k": "B",
+    "t": "注意力权重 α_ij 对目标位置 i 求和为 1"
+   },
+   {
+    "k": "C",
+    "t": "随着句子变长，RNNsearch-50 的 BLEU 下降远小于 RNNencdec-50"
+   },
+   {
+    "k": "D",
+    "t": "论文提出了点积（乘性）打分，后来被 Transformer 采用"
+   },
+   {
+    "k": "E",
+    "t": "在英法翻译的对齐可视化中，对齐大体是单调的，但在形容词–名词这类词序差异处会出现非单调的对齐"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-09",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   6
+  ],
+  "cluster": "attn",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 3,
+  "stem": "`06_pointer_networks.ipynb`：\n\n```python\nclass PointerAttention:\n    def forward(self, encoder_states, decoder_state):\n        seq_len = encoder_states.shape[0]\n        scores = []\n        for i in range(seq_len):\n            encoder_proj = np.dot(self.W1, encoder_states[i:i+1].T)\n            decoder_proj = np.dot(self.W2, decoder_state)\n            score = np.dot(self.v.T, np.tanh(encoder_proj + decoder_proj))\n            scores.append(score[0, 0])\n        scores = np.array(scores).reshape(-1, 1)\n        probs = softmax(scores, axis=0)\n        return probs, scores\n\nclass PointerNetwork:\n    def forward(self, inputs, targets=None):\n        encoder_states, h = self.encode(inputs)\n        output_probs = []\n        output_indices = []\n        x = np.mean([inp for inp in inputs], axis=0)\n        for step in range(len(inputs)):\n            probs, h, scores = self.decode_step(x, h, encoder_states)\n            output_probs.append(probs)\n            ptr_idx = np.argmax(probs)\n            output_indices.append(ptr_idx)\n            x = inputs[ptr_idx]\n        return output_indices, output_probs\n```\n\nnotebook 用它预测凸包，并把未训练网络的输出和真实凸包画在一起。以下批评正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "解码步数固定为 len(inputs)，而凸包的顶点数随样例变化，即使训练好也无法输出正确长度的序列"
+   },
+   {
+    "k": "B",
+    "t": "指针分布经过了 softmax，因此不会重复选中同一个位置"
+   },
+   {
+    "k": "C",
+    "t": "每次循环都重新计算 W2·decoder_state，这会让结果出错"
+   },
+   {
+    "k": "D",
+    "t": "argmax 之后没有屏蔽已经选过的位置，可能反复指向同一个点；对于输出是输入排列的任务（如排序），应该加 mask"
+   },
+   {
+    "k": "E",
+    "t": "用未训练网络的输出和真实凸包作对比，只能检查形状和流程，不能说明模型的能力"
+   }
+  ]
+ },
+ {
+  "id": "P-attn-10",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L1",
+  "papers": [
+   13
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 2,
+  "stem": "Transformer 的正弦位置编码：PE(pos, 2i) = ________，PE(pos, 2i+1) = cos(pos / 10000^{2i/d_model})。论文选择这种形式的一个理由是：对任意固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的 ________ 函数。",
+  "opts": []
+ },
+ {
+  "id": "P-attn-11",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   13
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 2,
+  "stem": "d_model = 512 时，一层 multi-head attention 的投影矩阵 W^Q、W^K、W^V、W^O 总参数量（不计偏置）是 ________；n = 1024、h = 8 时，这一层所有 head 的注意力权重矩阵的元素总数为 ________。",
+  "opts": []
+ },
+ {
+  "id": "P-attn-12",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   14
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 2,
+  "stem": "Bahdanau attention 中，源句长 T_x = 50、目标句长 T_y = 40，整个解码过程共需计算 ________ 个打分 e_ij。打分式中的 U_a h_j 与目标位置 i 无关，因此可以 ________，从而节省计算。",
+  "opts": []
+ },
+ {
+  "id": "P-attn-13",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   14
+  ],
+  "cluster": "attn",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`14_bahdanau_attention.ipynb`：\n\n```python\nclass BahdanauAttention:\n    def __init__(self, hidden_size, annotation_size):\n        self.W_a = np.random.randn(hidden_size, hidden_size) * 0.01\n        self.U_a = np.random.randn(hidden_size, annotation_size) * 0.01\n        self.v_a = np.random.randn(1, hidden_size) * 0.01\n\n# cell 13：画对齐矩阵\nplt.imshow(attention_matrix, cmap='Blues', aspect='auto', interpolation='nearest')\n\n# cell 17：与“无注意力”对比\ndef fixed_context_attention(seq_len):\n    \"\"\"Simulates attending only to last encoder state\"\"\"\n    weights = np.zeros(seq_len)\n    weights[-1] = 1.0  # Only attend to last position\n    return weights\n```\n\n模型从未训练，输入为 7 个 token。\n\n(a) 在这个初始化下，attention_matrix 的实际数值大致是什么样？cell 13 画出来的图为什么可能看起来有“模式”？\n\n(b) cell 17 的 “Without Attention vs With Bahdanau Attention” 对比图，作为“注意力有用”的证据有什么问题？\n\n(c) 设计一个能真正说明注意力作用的最小实验（任务、对照、度量）。",
+  "opts": []
+ },
+ {
+  "id": "P-attn-14",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   6
+  ],
+  "cluster": "attn",
+  "tags": [],
+  "points": 5,
+  "stem": "用 Pointer Network 求平面凸包，输出凸包顶点的下标序列。\n\n(a) 一个有 m 个顶点的凸包，可以写成多少种不同的下标循环序列？为什么训练前必须规定一个规范的输出顺序？\n\n(b) 推理时网络可能输出不合法的序列（例如重复的点）。给出两种处理办法。\n\n(c) Ptr-Net 的编码器是按某个顺序读入点的 RNN，但凸包的输入本质上是一个集合。这会带来什么问题？怎样缓解？",
+  "opts": []
+ },
+ {
+  "id": "P-info-01",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   25
+  ],
+  "cluster": "info",
+  "tags": [],
+  "points": 2,
+  "stem": "字符串 x 的 Kolmogorov 复杂度 K(x) 定义为：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "以 x 的经验字符频率计算的 Shannon 熵乘以 |x|"
+   },
+   {
+    "k": "B",
+    "t": "用 zlib 等最好的现有压缩器压缩 x 后的长度"
+   },
+   {
+    "k": "C",
+    "t": "x 中不同符号的个数"
+   },
+   {
+    "k": "D",
+    "t": "在一台固定的通用图灵机上，输出 x 后停机的最短程序的长度"
+   }
+  ]
+ },
+ {
+  "id": "P-info-02",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   25
+  ],
+  "cluster": "info",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 2,
+  "stem": "`25_kolmogorov_complexity.ipynb` 用下面的函数比较 zlib 与 gzip，然后宣称 \"Differences are small constants (invariance holds!)\"：\n\n```python\ndef estimate_kolmogorov_via_compression(s, method='zlib'):\n    if isinstance(s, str):\n        s = s.encode('utf-8')\n    if method == 'zlib':\n        compressed = zlib.compress(s, level=9)\n    elif method == 'gzip':\n        buf = io.BytesIO()\n        with gzip.GzipFile(fileobj=buf, mode='wb', compresslevel=9) as f:\n            f.write(s)\n        compressed = buf.getvalue()\n    return len(compressed)\n```\n\n实际运行时，对随机字节、`b'ABC'*333`、全零、英文重复句四种输入，gzip 结果都恰好比 zlib 多 12 字节。对这个现象最准确的解释是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "两者用的是同一个 DEFLATE 压缩流，只是封装的头和校验尾不同（gzip 18 字节，zlib 6 字节），差值必然恒为 12，不能作为不变性定理的证据"
+   },
+   {
+    "k": "B",
+    "t": "这正是不变性定理：任意两个压缩器的结果只差一个常数"
+   },
+   {
+    "k": "C",
+    "t": "gzip 的压缩率更低，差距会随字符串变长而线性增大，只是这里串太短看不出来"
+   },
+   {
+    "k": "D",
+    "t": "这说明 K(x) 是可计算的，因为两个独立算法给出了一致的结果"
+   }
+  ]
+ },
+ {
+  "id": "P-info-03",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L3",
+  "papers": [
+   23
+  ],
+  "cluster": "info",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 2,
+  "stem": "`23_mdl_principle.ipynb`（节选）：\n\n```python\ndef mdl_polynomial(X, y, degree):\n    N = len(X)\n    n_params = degree + 1\n    _, _, rss = fit_polynomial(X, y, degree)\n    L_model = n_params * np.log2(N) / 2\n    if rss < 1e-10:  # Perfect fit\n        L_data = 0\n    else:\n        L_data = N / 2 * np.log2(rss / N + 1e-10)\n    return L_model + L_data, L_model, L_data\n\ndef bic_polynomial(X, y, degree):\n    N = len(X)\n    n_params = degree + 1\n    _, _, rss = fit_polynomial(X, y, degree)\n    log_likelihood = -N/2 * np.log(2 * np.pi * rss / N) - N/2\n    return n_params * np.log(N) - 2 * log_likelihood\n```\n\nnotebook 选出 MDL 最优阶数为 3，并据此写道 \"MDL correctly identifies true model complexity!\"。关于这两个函数，最准确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "MDL 比 BIC 惩罚更重，所以在小样本下更不容易过拟合"
+   },
+   {
+    "k": "B",
+    "t": "L_data 可能为负，说明代码写错了，结果不可信，应改用 AIC"
+   },
+   {
+    "k": "C",
+    "t": "在 rss ≥ 1e-10 时，mdl = BIC / (2 ln 2) + 常数，两者对任何数据选出的阶数都相同；这里的 \"MDL\" 只是换了单位的 BIC，不是对 MDL 的独立验证"
+   },
+   {
+    "k": "D",
+    "t": "MDL 与 BIC 只在 N 很大时渐近一致，N=50 时通常选出不同阶数"
+   }
+  ]
+ },
+ {
+  "id": "P-info-04",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   17
+  ],
+  "cluster": "info",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`17_variational_autoencoder.ipynb`：\n\n```python\ndef reparameterize(self, mu, log_var):\n    std = np.exp(0.5 * log_var)\n    epsilon = np.random.randn(*mu.shape)\n    z = mu + std * epsilon\n    return z\n```\n\n`std = np.exp(0.5 * log_var)` 这一行的作用是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "0.5 是阻尼系数，让采样的方差小一点，训练更稳"
+   },
+   {
+    "k": "B",
+    "t": "log_var 表示 log σ²，所以 σ = exp(½ · log σ²)"
+   },
+   {
+    "k": "C",
+    "t": "0.5 是 KL 项前面的系数 ½"
+   },
+   {
+    "k": "D",
+    "t": "这是 softmax 的温度"
+   }
+  ]
+ },
+ {
+  "id": "P-info-05",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   5
+  ],
+  "cluster": "info",
+  "tags": [],
+  "points": 2,
+  "stem": "Hinton & van Camp (1993) 在训练中给权重加高斯噪声。它的主要作用是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "相当于数据增强，扩充训练集"
+   },
+   {
+    "k": "B",
+    "t": "帮助 SGD 跳出局部极小，与 Langevin 动力学等价"
+   },
+   {
+    "k": "C",
+    "t": "把小权重推向 0，实现 magnitude pruning"
+   },
+   {
+    "k": "D",
+    "t": "降低权重携带的信息量：噪声方差越大（相对先验），描述权重所需比特越少，代价是期望数据误差变大，两者之和就是要最小化的描述长度"
+   }
+  ]
+ },
+ {
+  "id": "P-info-06",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   23
+  ],
+  "cluster": "info",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 MDL 原理（Grünwald 的教程），正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "MDL 的出发点是假设存在一个生成数据的\"真实分布\"，目标是找到它"
+   },
+   {
+    "k": "B",
+    "t": "由 Kraft 不等式，任何前缀码都对应一个（次）概率分布，码长 L(x) = −log₂ P(x)；反之亦然"
+   },
+   {
+    "k": "C",
+    "t": "对有限假设集 H 用均匀码，描述一个假设需要 |H| 比特"
+   },
+   {
+    "k": "D",
+    "t": "MDL 把学习看作发现规律，而任何规律都可以用来压缩数据"
+   },
+   {
+    "k": "E",
+    "t": "两段式 MDL 中，很复杂的假设（如过 n 个点的 n−1 阶多项式）L(D|H) 很小但 L(H) 很大，因此通常不会被选中"
+   },
+   {
+    "k": "F",
+    "t": "MDL 与贝叶斯方法没有任何联系"
+   }
+  ]
+ },
+ {
+  "id": "P-info-07",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   25
+  ],
+  "cluster": "info",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 Kolmogorov 复杂度，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "K(x) ≤ |x| + O(1)"
+   },
+   {
+    "k": "B",
+    "t": "存在可计算的、无界的函数 f，使得对所有 x 都有 f(x) ≤ K(x)"
+   },
+   {
+    "k": "C",
+    "t": "K 是上半可计算的：存在算法输出一列单调不增、最终收敛到 K(x) 的上界，但无法判断何时已经收敛"
+   },
+   {
+    "k": "D",
+    "t": "K(x | x) = O(1)"
+   },
+   {
+    "k": "E",
+    "t": "K(x) 和 Shannon 信息量一样，都需要先给定 x 的概率分布才能定义"
+   }
+  ]
+ },
+ {
+  "id": "P-info-08",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   17
+  ],
+  "cluster": "info",
+  "tags": [
+   "code"
+  ],
+  "points": 3,
+  "stem": "`17_variational_autoencoder.ipynb`（节选）：\n\n```python\n# 数据：4x4 图案加小噪声\nnoise = np.random.randn(4, 4) * 0.05\npattern = np.clip(pattern + noise, 0, 1)\n\ndef encode(self, x):\n    h = relu(np.dot(x, self.W_enc_h) + self.b_enc_h)\n    mu = np.dot(h, self.W_mu) + self.b_mu\n    log_var = np.dot(h, self.W_logvar) + self.b_logvar\n    return mu, log_var\n\ndef loss(self, x, x_recon, mu, log_var):\n    recon_loss = -np.sum(\n        x * np.log(x_recon + 1e-8) +\n        (1 - x) * np.log(1 - x_recon + 1e-8)\n    )\n    kl_loss = -0.5 * np.sum(1 + log_var - mu**2 - np.exp(log_var))\n    return recon_loss + kl_loss, recon_loss, kl_loss\n```\n\n（notebook 中的 VAE 从未训练，权重是随机初始化。）以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "reparameterize 中对 ε 的采样使梯度无法流向 mu"
+   },
+   {
+    "k": "B",
+    "t": "数据是 [0, 1] 内的连续值，却用 Bernoulli 似然（BCE），recon_loss 不是这类数据的合法负对数似然，只能算一个代理损失"
+   },
+   {
+    "k": "C",
+    "t": "log_var 用无约束的线性层输出，经 exp 后总能得到正的方差"
+   },
+   {
+    "k": "D",
+    "t": "notebook 里 latent_codes 的散点图如果四类图案能分开，就证明 VAE 学到了有意义的表征"
+   },
+   {
+    "k": "E",
+    "t": "notebook 没有自回归 decoder，也没有限制感受野，所以展示不了 VLAE 论文的核心现象（有损编码，z 只保留全局信息）"
+   }
+  ]
+ },
+ {
+  "id": "P-info-09",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [
+   1,
+   19
+  ],
+  "cluster": "info",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 \"The First Law of Complexodynamics\"（Aaronson 博客）与 Coffee automaton（Aaronson, Carroll & Ouellette 2014），正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "按热力学第二定律，封闭系统的熵随时间不减"
+   },
+   {
+    "k": "B",
+    "t": "咖啡与奶完全分开（初始）和完全混匀（终态）时都\"简单\"，中间搅混的阶段最\"复杂\""
+   },
+   {
+    "k": "C",
+    "t": "Coffee automaton 的粒子规则是专门设计成能自组织出复杂结构的"
+   },
+   {
+    "k": "D",
+    "t": "表观复杂度的估计依赖粗粒化的尺度选择"
+   },
+   {
+    "k": "E",
+    "t": "Aaronson 在博客里严格证明了 complextropy 先升后降的定理"
+   }
+  ]
+ },
+ {
+  "id": "P-info-10",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L1",
+  "papers": [
+   23
+  ],
+  "cluster": "info",
+  "tags": [],
+  "points": 2,
+  "stem": "前缀码的码长 l₁, l₂, … 必须满足 Kraft 不等式 Σ_i 2^(−l_i) ________ 1；对分布 p，期望码长最短的码给符号 x 分配的码长（忽略取整）为 ________。",
+  "opts": []
+ },
+ {
+  "id": "P-info-11",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   23
+  ],
+  "cluster": "info",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`23_mdl_principle.ipynb`：\n\n```python\nif model_order == 0:\n    n_ones = np.sum(sequence)\n    n_zeros = N - n_ones\n    L_model = 32  # Float precision for p\n    p = (n_ones + 1) / (N + 2)  # Laplace smoothing\n    L_data = -n_ones * np.log2(p) - n_zeros * np.log2(1 - p)\n    return L_model + L_data\n```\n\n输入一个长度 N = 1000、恰好含 700 个 1 的序列，返回值约为 ________ 比特（保留 1 位小数）。",
+  "opts": []
+ },
+ {
+  "id": "P-info-12",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   5
+  ],
+  "cluster": "info",
+  "tags": [],
+  "points": 2,
+  "stem": "Hinton & van Camp (1993) 编码数据误差时，假设误差服从均值 0、标准差 σ 的高斯分布，并以宽度 t 量化。一个误差 r 的码长（单位 nats）约为 ________；在所有训练样本上让总码长最小的 σ² 等于 ________。",
+  "opts": []
+ },
+ {
+  "id": "P-info-13",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   5,
+   23
+  ],
+  "cluster": "info",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`05_neural_network_pruning.ipynb` 最后一节：\n\n```python\ndef compute_mdl(model, X_train, y_train):\n    # Model cost: number of parameters (simplified)\n    total, active = model.count_parameters()\n    model_cost = active  # Each param = 1 \"bit\" (simplified)\n\n    # Data cost: cross-entropy loss\n    probs = model.forward(X_train)\n    y_one_hot = np.zeros((len(y_train), model.output_dim))\n    y_one_hot[np.arange(len(y_train)), y_train] = 1\n    data_cost = -np.sum(y_one_hot * np.log(probs + 1e-8))\n\n    total_cost = model_cost + data_cost\n    return {\n        'model_cost': model_cost,\n        'data_cost': data_cost,\n        'total_cost': total_cost\n    }\n\nbaseline_mdl = compute_mdl(baseline_model, X_train, y_train)\npruned_mdl = compute_mdl(iterative_model, X_train, y_train)\n...\nprint(f\"\\nPruned model has LOWER total cost → Better generalization!\")\n```\n\n其中 `active` = 未被剪掉的权重数 + 偏置数，`iterative_model` 是经过多轮 magnitude pruning + 微调的模型。\n(a) 指出至少三处方法论问题。\n(b) 如果按 Hinton & van Camp (1993) 的思路，模型代价和数据代价应该怎么算？\n(c) 就算 (a) 的问题都修好，\"total cost 更低 → 泛化更好\" 还缺什么证据？",
+  "opts": []
+ },
+ {
+  "id": "P-info-14",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   24,
+   25
+  ],
+  "cluster": "info",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`24_machine_super_intelligence.ipynb`（节选）：\n\n```python\n# 玩具版 Solomonoff 先验：程序 = 一个会被循环重复的模式\nfor length in range(1, self.max_length + 1):\n    for pattern in itertools.product(range(self.alphabet_size), repeat=length):\n        program = list(pattern)\n        weight = 2.0 ** (-length)  # Solomonoff prior\n        programs.append((program, weight))\ntotal_weight = sum(w for _, w in programs)\nprograms = [(p, w / total_weight) for p, w in programs]\n# 使用时：alphabet_size=2, max_program_length=6\n# 之后打印 weights_by_length[1] 和 weights_by_length[6]（各长度程序的总权重）\n\n# Universal intelligence 的近似\nfor env_spec in self.environments:          # 共 3 个环境\n    complexity = env_spec['complexity']    # 手写：常数奖励环境 2，二选一环境 4，网格世界 8\n    weight = 2.0 ** (-complexity)\n    ...  # 跑 n_episodes 回合，max_steps 步，gamma=0.95，累计折扣奖励\n    intelligence += weight * value\ntotal_weight = sum(2.0 ** (-env['complexity']) for env in self.environments)\nintelligence /= total_weight\n```\n\n其中常数奖励环境每步都给 +1；MC-AIXI agent 的 `select_action(env)` 内部调用 `env.copy()` 做 MCTS 模拟。\n(a) weights_by_length[1] 和 weights_by_length[6] 分别打印多少？这与注释里 \"shorter programs weighted more\" 的说法有什么矛盾？真正的 Solomonoff 先验靠什么避免这个问题？\n(b) 指出 Υ 近似实现中至少两个让结果失去意义的问题。\n(c) Legg & Hutter 为什么用 2^(−K(μ)) 而不是对所有环境等权平均？",
+  "opts": []
+ },
+ {
+  "id": "P-retr-01",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   28
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 2,
+  "stem": "DPR 的检索模型结构是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "一个 BERT 把问题和段落拼接起来，输出相关性分数（cross-encoder）"
+   },
+   {
+    "k": "B",
+    "t": "两个独立的 BERT-base 编码器，分别编码问题和段落，取 [CLS] 向量，相似度为内积"
+   },
+   {
+    "k": "C",
+    "t": "TF-IDF 稀疏向量检索，再用 BERT 重排"
+   },
+   {
+    "k": "D",
+    "t": "用 BERT 编码问题，段落仍用 BM25 稀疏向量表示"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-02",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   29
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 2,
+  "stem": "RAG 微调时，哪些部分的参数会被更新？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "查询编码器、文档编码器和 BART 生成器全部端到端更新，并定期重建文档索引"
+   },
+   {
+    "k": "B",
+    "t": "只更新 BART 生成器，检索器完全冻结"
+   },
+   {
+    "k": "C",
+    "t": "只更新查询编码器 BERT_q 和 BART 生成器，文档编码器 BERT_d 和索引保持不变"
+   },
+   {
+    "k": "D",
+    "t": "只更新文档编码器，让索引适应生成器"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-03",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   30
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 2,
+  "stem": "Liu et al. (2023) 尝试了 query-aware contextualization（把问题同时放在文档之前和之后）。结果是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "key-value 检索任务几乎变得完美，但多文档 QA 的位置趋势变化很小"
+   },
+   {
+    "k": "B",
+    "t": "两个任务里的 U 形都被彻底消除"
+   },
+   {
+    "k": "C",
+    "t": "两个任务都变差，因为上下文变长了"
+   },
+   {
+    "k": "D",
+    "t": "只对 encoder-decoder 模型有效，对 decoder-only 模型没有作用"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-04",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L3",
+  "papers": [
+   30
+  ],
+  "cluster": "retr",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`30_lost_in_middle.ipynb`：\n\n```python\nelif strategy == 'most_relevant_edges':\n    # Put most relevant at beginning and end\n    sorted_indices = np.argsort(relevance_scores)[::-1]\n\n    # Interleave: best at edges, worst in middle\n    ordered = []\n    for i in range(len(documents) // 2):\n        ordered.append(documents[sorted_indices[i]])  # High relevance\n    for i in range(len(documents) // 2, len(documents)):\n        ordered.append(documents[sorted_indices[i]])  # Low relevance\n\n    # Reverse second half to put high at end\n    mid = len(ordered) // 2\n    return ordered[:mid] + ordered[mid:][::-1]\n```\n\n有 10 篇文档，按相关性排名 1（最相关）到 10。返回列表中各排名的位置（0-indexed）是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "排名 1→0、2→9、3→1、4→8……高分文档交替放在两端，最差的在中间"
+   },
+   {
+    "k": "B",
+    "t": "与 'most_relevant_first' 完全相同"
+   },
+   {
+    "k": "C",
+    "t": "排名 1–5 依次放在位置 5–9，排名 6–10 放在位置 0–4"
+   },
+   {
+    "k": "D",
+    "t": "排名 1–5 依次放在位置 0–4，排名 6 在位置 9，排名 10 在位置 5；第 4、5 名反而落在中间区域，与注释的意图不符"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-05",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   29
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 2,
+  "stem": "RAG 论文中 \"参数化记忆\" 和 \"非参数化记忆\" 分别指：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "两者都是 BART 的参数"
+   },
+   {
+    "k": "B",
+    "t": "参数化记忆 = 维基百科向量索引，非参数化记忆 = BART"
+   },
+   {
+    "k": "C",
+    "t": "参数化记忆 = 预训练 seq2seq 模型（BART），非参数化记忆 = 维基百科的稠密向量索引，由 DPR 检索器访问"
+   },
+   {
+    "k": "D",
+    "t": "非参数化记忆 = 训练语料中每个 token 的 kNN 缓存"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-06",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [
+   28
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 DPR 的训练与索引，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "建索引时，每个段落都要和问题拼接后过一遍 BERT"
+   },
+   {
+    "k": "B",
+    "t": "维基百科文章被切成互不重叠的 100 词段落"
+   },
+   {
+    "k": "C",
+    "t": "在 in-batch 负例之外再加 BM25 hard negative，会让检索准确率显著下降"
+   },
+   {
+    "k": "D",
+    "t": "训练损失是正例段落的负对数似然（在正例和若干负例上做 softmax）"
+   },
+   {
+    "k": "E",
+    "t": "论文比较了三类负例：随机段落、BM25 检索出的高分段落（不含答案）、其他问题的正例段落（Gold）"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-07",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   30
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 \"Lost in the Middle\" 的发现，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "输入两者都放得下时，extended-context 版本（如 GPT-3.5-Turbo-16K）明显优于标准版本"
+   },
+   {
+    "k": "B",
+    "t": "相关文档放在中间时，GPT-3.5-Turbo 的多文档 QA 准确率可能低于 closed-book（不给任何文档）的准确率"
+   },
+   {
+    "k": "C",
+    "t": "encoder-decoder 模型（Flan-T5-XXL、Flan-UL2）在训练时见过的长度以内对位置相对鲁棒，超出后也出现 U 形"
+   },
+   {
+    "k": "D",
+    "t": "U 形只出现在指令微调过的模型上，base 模型没有"
+   },
+   {
+    "k": "E",
+    "t": "开放域 QA 案例中，检索文档从 20 篇增加到 50 篇时，检索 recall 继续上升，但阅读器准确率只提高一点点"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-08",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   29
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 RAG，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "替换文档索引（如把 2018 年的维基 dump 换成 2016 年的）可以更新模型的世界知识，不需要重新训练"
+   },
+   {
+    "k": "B",
+    "t": "在 Jeopardy 问题生成任务上，RAG-Token 优于 RAG-Sequence"
+   },
+   {
+    "k": "C",
+    "t": "RAG-Sequence 解码时可以直接跑一次标准 beam search"
+   },
+   {
+    "k": "D",
+    "t": "在 FEVER 上，RAG 没有用证据检索的监督信号，效果仍接近使用检索监督的 pipeline 方法"
+   },
+   {
+    "k": "E",
+    "t": "检索器训练时用人工标注的 gold 文档作为监督"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-09",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   28
+  ],
+  "cluster": "retr",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 3,
+  "stem": "`28_dense_passage_retrieval.ipynb`（节选；编码器从未训练）：\n\n```python\n# SimpleTextEncoder.encode 的最后几行\noutput = np.dot(self.W_out, h).flatten()\n# L2 normalize for cosine similarity\noutput = output / (np.linalg.norm(output) + 1e-8)\nreturn output\n\ndef contrastive_loss(query_emb, positive_emb, negative_embs):\n    pos_score = np.dot(query_emb, positive_emb)\n    neg_scores = [np.dot(query_emb, neg_emb) for neg_emb in negative_embs]\n    all_scores = np.array([pos_score] + neg_scores)\n    probs = softmax(all_scores)\n    loss = -np.log(probs[0] + 1e-8)\n    return loss\n\n# batch_size = 3，每个问题的负例是 batch 内其他段落\n```\n\nnotebook 随后比较 BM25 与 Dense 的 top-3 检索结果，并打印 \"BM25: Lexical matching (sparse) / Dense: Semantic matching (dense embeddings)\"。以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "输出做了 L2 归一化，相似度变成余弦；DPR 主设定用的是未归一化的内积"
+   },
+   {
+    "k": "B",
+    "t": "用循环逐个 np.dot 算负例分数，与用 Q·Pᵀ 一次算出 B×B 分数矩阵，得到的 loss 不同"
+   },
+   {
+    "k": "C",
+    "t": "由于向量归一化且没有温度，即使正例完全对齐（得分 1）、负例完全相反（得分 −1），batch_size=3 时每个问题的 loss 也不低于约 0.24"
+   },
+   {
+    "k": "D",
+    "t": "编码器未训练，这里的检索结果不能支持 \"Dense 做语义匹配所以更好\" 之类的结论"
+   },
+   {
+    "k": "E",
+    "t": "DPR 的设定是用同一个编码器实例同时编码问题和段落"
+   }
+  ]
+ },
+ {
+  "id": "P-retr-10",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   28
+  ],
+  "cluster": "retr",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`28_dense_passage_retrieval.ipynb`：\n\n```python\ndef compute_metrics(predictions, correct_indices, k_values=[1, 3, 5]):\n    n_queries = len(predictions)\n    recalls = {k: 0 for k in k_values}\n    reciprocal_ranks = []\n    for pred, correct_idx in zip(predictions, correct_indices):\n        if correct_idx in pred:\n            rank = list(pred).index(correct_idx) + 1\n            reciprocal_ranks.append(1.0 / rank)\n            for k in k_values:\n                if rank <= k:\n                    recalls[k] += 1\n        else:\n            reciprocal_ranks.append(0.0)\n    mrr = np.mean(reciprocal_ranks)\n    recalls = {k: v / n_queries for k, v in recalls.items()}\n    return recalls, mrr\n```\n\n每个 `pred` 是 top-5 列表。5 个问题的正确段落分别排在第 1、3、未进入 top-5、2、5 名。则 recalls[3] = ________，mrr = ________（保留 3 位小数）。",
+  "opts": []
+ },
+ {
+  "id": "P-retr-11",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L1",
+  "papers": [
+   30
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 2,
+  "stem": "\"Lost in the Middle\" 的多文档 QA 实验基于 ________ 数据集；每个输入包含一篇含答案的文档和若干干扰文档，总文档数分别设为 ________ 三种。",
+  "opts": []
+ },
+ {
+  "id": "P-retr-12",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   29
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 2,
+  "stem": "RAG 的检索分布为 p_η(z | x) ∝ exp(________)，其中文档表示和查询表示分别由 ________ 计算。",
+  "opts": []
+ },
+ {
+  "id": "P-retr-13",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   30
+  ],
+  "cluster": "retr",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`30_lost_in_middle.ipynb`（节选）：\n\n```python\nelif self.position_bias_type == 'u_shaped':\n    normalized_pos = positions / (num_positions - 1)  # 0 to 1\n    weights = 4 * (normalized_pos - 0.5) ** 2 + 0.3\n...\nweights = weights / np.sum(weights)\n\n# answer_query:\nposition_weights = self.get_position_weights(num_docs)\n...\nprob_correct = position_weights[relevant_position]\nreturn prob_correct\n\n# test_varying_lengths: lengths = [3, 5, 7, 9, 10]，\n# 在每个长度下把相关文档放在开头/中间/结尾，记录 answer_query 的返回值作为 \"accuracy\"，\n# 然后打印 \"Longer contexts → worse performance (especially in middle!)\"\n```\n\n(a) 说明为什么这里的 U 形曲线不能当作证据。\n(b) 计算 3 篇和 10 篇文档时相关文档放在开头的 \"accuracy\"，并解释 \"上下文越长越差\" 这个结论在这里是怎么产生的。\n(c) 原论文考察过哪些可能导致 U 形的因素？结论分别是什么？",
+  "opts": []
+ },
+ {
+  "id": "P-retr-14",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L2",
+  "papers": [
+   28,
+   29
+  ],
+  "cluster": "retr",
+  "tags": [],
+  "points": 5,
+  "stem": "(a) DPR 为什么用双塔（bi-encoder）而不是 cross-encoder 做第一阶段检索？\n(b) RAG 微调时为什么不更新文档编码器？\n(c) 如果一定要更新文档编码器，工程上要付出什么代价？举一个这么做的已有工作。",
+  "opts": []
+ },
+ {
+  "id": "P-rel-01",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   20
+  ],
+  "cluster": "rel",
+  "tags": [],
+  "points": 2,
+  "stem": "NTM 的 content 寻址中，标量 β_t（key strength）的作用是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "决定权重向量循环移动多少位"
+   },
+   {
+    "k": "B",
+    "t": "控制 content 权重与上一步权重之间的插值比例"
+   },
+   {
+    "k": "C",
+    "t": "控制注意力分布的集中程度：β_t 越大越集中在最匹配的行，β_t → 0 时趋于均匀分布"
+   },
+   {
+    "k": "D",
+    "t": "决定写入时擦除 memory 的比例"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-02",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   16
+  ],
+  "cluster": "rel",
+  "tags": [],
+  "points": 2,
+  "stem": "Santoro et al. (2017) 在 Sort-of-CLEVR 上比较 CNN+MLP 基线与 CNN+RN，结果是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "RN 在非关系问题上明显弱于基线，这是它为关系推理付出的代价"
+   },
+   {
+    "k": "B",
+    "t": "基线在关系问题上更好，RN 只在非关系问题上占优"
+   },
+   {
+    "k": "C",
+    "t": "两者在关系问题上都接近随机水平"
+   },
+   {
+    "k": "D",
+    "t": "两者在非关系问题上都很好，但只有 RN 在关系问题上也很好，基线在关系问题上明显落后"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-03",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   8
+  ],
+  "cluster": "rel",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 2,
+  "stem": "`08_seq2seq_for_sets.ipynb` Section 9 的消融实验：\n\n```python\npooling_methods = ['mean', 'sum', 'max', 'attention']\nresults = {}\n\nfor pooling in pooling_methods:\n    # Create model with specific pooling\n    model = Set2Seq(input_dim=1, output_dim=1, hidden_dim=32, pooling=pooling)\n    # Test on permuted data\n    losses = []\n    for i in range(20):\n        input_data = X_permuted[i]\n        target_data = Y_train[i]\n        pred, _ = model.forward(input_data, len(target_data))\n        loss = compute_loss(pred, target_data)\n        losses.append(loss)\n    avg_loss = np.mean(losses)\n    std_loss = np.std(losses)\n    results[pooling] = (avg_loss, std_loss)\n\nbest_method = min(results, key=lambda k: results[k][0])\n```\n\nnotebook 据此总结 \"Mean pooling often works well as a default\"。这个结论最根本的问题是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "4 个模型都是随机初始化、从未训练，loss 差异只反映这一组随机权重，不能说明哪种 pooling 更好"
+   },
+   {
+    "k": "B",
+    "t": "应该在没打乱的 `X_train` 上评测，用 `X_permuted` 对部分 pooling 不公平"
+   },
+   {
+    "k": "C",
+    "t": "max pooling 不是置换不变的，所以它的结果无效"
+   },
+   {
+    "k": "D",
+    "t": "只用了 20 个样本；换成 2000 个样本结论就可靠了"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-04",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L3",
+  "papers": [
+   12
+  ],
+  "cluster": "rel",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`12_graph_neural_networks.ipynb`：\n\n```python\nclass Graph:\n    def add_edge(self, src, tgt, features=None):\n        self.edges.append((src, tgt))\n        if features is not None:\n            self.edge_features[(src, tgt)] = features\n\n    def get_neighbors(self, node):\n        \"\"\"Get all neighbors of a node\"\"\"\n        neighbors = []\n        for src, tgt in self.edges:\n            if src == node:\n                neighbors.append(tgt)\n        return neighbors\n\nclass MessagePassingLayer:\n    def message(self, h_source, h_target, e_features):\n        if e_features is None:\n            e_features = np.zeros(self.edge_dim)\n        concat = np.concatenate([h_source, h_target, e_features])\n        # ... tanh(W_msg @ concat + b_msg)\n\n    def forward(self, graph, node_states):\n        new_states = []\n        for v in range(graph.num_nodes):\n            # Collect messages from neighbors\n            messages = []\n            for w in graph.get_neighbors(v):\n                # Get edge features\n                edge_feat = graph.edge_features.get((w, v), None)\n                # Compute message\n                msg = self.message(node_states[w], node_states[v], edge_feat)\n                messages.append(msg)\n            aggregated = self.aggregate(messages)\n            h_new = self.update(node_states[v], aggregated)\n            new_states.append(h_new)\n        return new_states\n```\n\n对一个只有一条有向边 0→1、并通过 `add_edge(0, 1, features=e)` 设置了边特征的图，调用一次 `forward`，实际发生的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "节点 1 收到来自节点 0 的消息，并使用了边特征 e"
+   },
+   {
+    "k": "B",
+    "t": "节点 0 收到来自节点 1 的消息，边特征被当作全零；节点 1 收不到任何消息"
+   },
+   {
+    "k": "C",
+    "t": "两个节点都收不到消息"
+   },
+   {
+    "k": "D",
+    "t": "节点 1 收到来自节点 0 的消息，但边特征被当作全零"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-05",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L3",
+  "papers": [
+   18
+  ],
+  "cluster": "rel",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 2,
+  "stem": "`18_relational_rnn.ipynb` §11 中带反向传播的实现（`Tensor(...)` 新建一个不连接到计算图的叶子张量）：\n\n```python\nclass LSTMCellWithGrad:\n    def forward(self, x):\n        # ...\n        # Update state (detached from graph for next step)\n        self.h = Tensor(h_new.data.copy())\n        self.c = Tensor(c_new.data.copy())\n        # ...\n        return h_new\n\nclass RelationalMemoryWithGrad:\n    def forward(self, input_vec):\n        # ...\n        # Update memory (detached)\n        self.memory = Tensor(new_memory.data.copy())\n        # ...\n\n# train_model_with_backprop\n        for t in range(seq_len):\n            x_t = Tensor(X_data[:, t, :])\n            y_t = Tensor(Y_data[:, t, :], requires_grad=False)\n            h = model.forward(x_t)  # (B, hidden_size)\n            logits = add_forward(matmul_forward(h, W_out), b_out)  # (B, max_digit)\n            loss = cross_entropy_loss_forward(logits, y_t)\n            epoch_loss += loss.data[0]\n            graph.backward(loss)\n```\n\n以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "梯度可以沿 memory 跨任意多个时间步回传，所以这是完整的 BPTT"
+   },
+   {
+    "k": "B",
+    "t": "因为状态被 detach，参数在整个训练中都不会被更新"
+   },
+   {
+    "k": "C",
+    "t": "每一步的 loss 只对本步内的计算产生梯度；上一步留下的 h、c 和 memory 在计算图里是常数，模型无法通过梯度学会\"为以后的输出存储信息\""
+   },
+   {
+    "k": "D",
+    "t": "detach 只影响 LSTM 路径，relational memory 的梯度仍然跨时间流动"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-06",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [
+   18
+  ],
+  "cluster": "rel",
+  "tags": [],
+  "points": 3,
+  "stem": "Santoro et al. (2018) \"Relational recurrent neural networks\" 用来评估 RMC 的任务包括：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "ImageNet 图像分类"
+   },
+   {
+    "k": "B",
+    "t": "N-th farthest：在一串向量中找出离某个向量第 n 远的向量"
+   },
+   {
+    "k": "C",
+    "t": "程序求值（Learning to Execute 风格的代码执行）"
+   },
+   {
+    "k": "D",
+    "t": "WMT 机器翻译"
+   },
+   {
+    "k": "E",
+    "t": "语言建模（如 WikiText-103）"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-07",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   16,
+   18
+  ],
+  "cluster": "rel",
+  "tags": [],
+  "points": 3,
+  "stem": "比较 Relation Network (Santoro et al. 2017) 与 Relational RNN 的 RMC (Santoro et al. 2018)，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "RN 对一个静态物体集合做一次性的成对关系计算；RMC 让记忆槽在每个时间步相互作用，针对跨时间的关系推理"
+   },
+   {
+    "k": "B",
+    "t": "在像素输入的 CLEVR 上，RN 的准确率超过了论文报告的人类水平"
+   },
+   {
+    "k": "C",
+    "t": "RMC 中记忆槽之间交互的计算量随槽数线性增长，避免了 RN 的平方复杂度"
+   },
+   {
+    "k": "D",
+    "t": "RN 中问题由 LSTM 编码，问题嵌入与每一对物体拼接后送入 g_θ"
+   },
+   {
+    "k": "E",
+    "t": "RN 训练时需要物体对之间的关系标签作为额外监督"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-08",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   8
+  ],
+  "cluster": "rel",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 \"Order Matters: Sequence to sequence for sets\" (Vinyals, Bengio & Kudlur 2016)，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "Read 模块用一个小网络对每个输入元素独立地做嵌入，得到 memory 向量"
+   },
+   {
+    "k": "B",
+    "t": "根据链式法则，任意输出顺序都能表示同一个联合分布，所以论文认为实践中输出顺序无关紧要"
+   },
+   {
+    "k": "C",
+    "t": "对于目标本身是集合的任务，论文提出在训练中搜索输出顺序：在候选顺序中选模型概率最高的那个作为当前目标"
+   },
+   {
+    "k": "D",
+    "t": "论文只讨论了输入顺序，没有讨论输出顺序"
+   },
+   {
+    "k": "E",
+    "t": "Write 模块是一个 pointer network，输出指向输入元素的下标"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-09",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   12
+  ],
+  "cluster": "rel",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 3,
+  "stem": "`12_graph_neural_networks.ipynb`（`mpnn` 的前向：节点嵌入 → 3 层 MessagePassingLayer → 对节点求和 → 线性层）：\n\n```python\n    def message(self, h_source, h_target, e_features):\n        \"\"\"Compute message from source to target\"\"\"\n        # Concatenate source, target, edge features\n        if e_features is None:\n            e_features = np.zeros(self.edge_dim)\n        concat = np.concatenate([h_source, h_target, e_features])\n        # Apply message network\n        message = np.tanh(np.dot(self.W_msg, concat) + self.b_msg)\n        return message\n\n# Carbon ring (nodes 0-5)\nfor i in range(6):\n    next_i = (i + 1) % 6\n    benzene.add_edge(i, next_i)\n    benzene.add_edge(next_i, i)\n# Hydrogen atoms (nodes 6-11) attached to carbons\nfor i in range(6):\n    h_idx = 6 + i\n    benzene.add_edge(i, h_idx)\n    benzene.add_edge(h_idx, i)\nfeatures = []\nfor i in range(6):\n    features.append(np.array([6, 3]))  # Carbon\nfor i in range(6):\n    features.append(np.array([1, 1]))  # Hydrogen\nbenzene.set_node_features(features)\npred_benzene, hist_benzene = mpnn.forward(benzene)\n\ndef sum_aggregation(messages):\n    return np.sum(messages, axis=0) if len(messages) > 0 else np.zeros_like(messages[0])\n```\n\n以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "`sum_aggregation([])`（没有邻居的节点）返回零向量"
+   },
+   {
+    "k": "B",
+    "t": "`pred_benzene` 的数值没有化学意义"
+   },
+   {
+    "k": "C",
+    "t": "`message` 只用了源节点状态，没有用目标节点状态"
+   },
+   {
+    "k": "D",
+    "t": "苯分子图没有设置边特征，`message` 里边特征那一段恒为零，键的信息完全没有进入模型"
+   },
+   {
+    "k": "E",
+    "t": "无论权重取什么值，6 个 H 节点的最终表示都完全相同（6 个 C 也一样）"
+   }
+  ]
+ },
+ {
+  "id": "P-rel-10",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L1",
+  "papers": [
+   20
+  ],
+  "cluster": "rel",
+  "tags": [],
+  "points": 2,
+  "stem": "NTM 的读操作：r_t = ________，其中权重 w_t 满足 ________。",
+  "opts": []
+ },
+ {
+  "id": "P-rel-11",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   16
+  ],
+  "cluster": "rel",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`16_relational_reasoning.ipynb`（Sort-of-CLEVR：6 种颜色、3 种形状、2 种大小；场景有 6 个物体）：\n\n```python\nclass RelationNetwork:\n    def __init__(self, object_dim, query_dim, g_hidden_dims, f_hidden_dims, output_dim):\n        # g_θ: processes pairs of objects + query\n        g_input_dim = object_dim * 2 + query_dim\n        g_output_dim = g_hidden_dims[-1] if g_hidden_dims else 256\n        self.g_theta = MLP(g_input_dim, g_hidden_dims[:-1], g_output_dim)\n        # ...\n\n    def forward(self, objects, query):\n        n_objects = len(objects)\n        relations = []\n        for i in range(n_objects):\n            for j in range(n_objects):\n                pair_input = np.concatenate([objects[i], objects[j], query])\n                relation = self.g_theta.forward(pair_input)\n                relations.append(relation)\n        # ...\n\nobject_dim = 2 + len(dataset.colors) + len(dataset.shapes) + len(dataset.sizes)\nquery_dim = len(dataset.colors) + 1\n\nrn_visual = RelationNetwork(\n    object_dim=object_dim,\n    query_dim=query_dim,\n    g_hidden_dims=[64, 64, 32],\n    f_hidden_dims=[64, 32],\n    output_dim=len(dataset.shapes)  # Predict shape\n)\n# ...\nprint(f\"\\nRelation Network considers ALL {n_objects * (n_objects - 1)} pairs!\")\n```\n\n(1) g_θ 第一层的输入维度是 ________；(2) 对这个 6 物体场景，`rn_visual.forward` 一次调用 g_θ ________ 次（最后一行打印的是 30）。",
+  "opts": []
+ },
+ {
+  "id": "P-rel-12",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   12
+  ],
+  "cluster": "rel",
+  "tags": [],
+  "points": 2,
+  "stem": "Gilmer et al. (2017) 的 \"towers\"：把 d 维节点表示拆成 k 份、每份 d/k 维，分别做消息传递再混合。对 n 个节点的图，一步 edge-network 消息传递的计算量从 O(n²d²) 降到 O(________)。他们的主要基准 QM9 要预测 ________ 个分子性质。",
+  "opts": []
+ },
+ {
+  "id": "P-rel-13",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   18
+  ],
+  "cluster": "rel",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`18_relational_rnn.ipynb` §11 用下面的设置比较 Relational RNN 与 LSTM（各跑一次），并打印\"Relational RNN 比 LSTM 低 x%\"：\n\n```python\n    x = np.random.randint(0, max_digit, size=(batch_size, seq_len))\n    y = np.sort(x, axis=1)\n    X = np.eye(max_digit)[x].astype(np.float64)\n    Y = np.eye(max_digit)[y].astype(np.float64)\n\n# train_model_with_backprop\n    for epoch in range(epochs):\n        X_data, Y_data = generate_sorting_task_tensors(seq_len, max_digit, batch_size)\n        model.init_state(batch_size)\n        optimizer.zero_grad()\n        # ...\n        for t in range(seq_len):\n            x_t = Tensor(X_data[:, t, :])\n            y_t = Tensor(Y_data[:, t, :], requires_grad=False)\n            h = model.forward(x_t)  # (B, hidden_size)\n            logits = add_forward(matmul_forward(h, W_out), b_out)  # (B, max_digit)\n            loss = cross_entropy_loss_forward(logits, y_t)\n            epoch_loss += loss.data[0]\n            graph.backward(loss)\n        avg_loss = epoch_loss / seq_len\n        losses.append(avg_loss)\n        optimizer.step()\n\n# run_experiment\n    SEQ_LEN = 8           # Sequence length\n    BATCH_SIZE = 32       # Batch size\n    EPOCHS = 30           # Training epochs\n    LR = 0.002            # Learning rate\n```\n\n(a) 这个任务的设定本身有什么问题？\n(b) 再指出训练/对比协议中至少两个让\"x% 更好\"不可靠的问题。\n(c) 给出一个更合理的实验方案。",
+  "opts": []
+ },
+ {
+  "id": "P-rel-14",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L2",
+  "papers": [
+   20
+  ],
+  "cluster": "rel",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`20_neural_turing_machine.ipynb` 的 copy 任务\"写入阶段\"：\n\n```python\nfor i, item in enumerate(sequence):\n    # Simulate controller output (random for demo)\n    controller_out = np.random.randn(controller_size)\n    \n    # Get write weights\n    weights = head.address(memory.memory, controller_out)\n    write_weights_history.append(weights)\n    \n    # Write to memory\n    head.write(memory, weights, controller_out)\n    memory_states.append(memory.get_memory())\n\n# NTMHead.write\n    def write(self, memory, weights, controller_output):\n        erase = 1 / (1 + np.exp(-np.dot(self.W_erase, controller_output)))  # sigmoid\n        add = np.tanh(np.dot(self.W_add, controller_output))\n        memory.write(weights, erase, add)\n```\n\n(a) 为什么之后画出的 \"Write Attention Patterns\" 和 memory 演化图不能说明 NTM 能做 copy？至少给两个理由。\n(b) 与 LSTM 相比，NTM 的存储容量和参数量之间是什么关系？\n(c) 为什么 NTM 的寻址要做成\"软\"的加权，而不是直接选一个离散下标？",
+  "opts": []
+ },
+ {
+  "id": "P-scale-01",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   9
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 2,
+  "stem": "GPipe 属于哪一类并行方式？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "把连续的层划分到不同设备上，并用 micro-batch 流水线提高利用率的模型并行"
+   },
+   {
+    "k": "B",
+    "t": "每个设备持有完整模型副本、各自处理不同数据的数据并行"
+   },
+   {
+    "k": "C",
+    "t": "把单个大矩阵乘法切到多个设备上的张量（层内）并行"
+   },
+   {
+    "k": "D",
+    "t": "把不同的专家子网络放到不同设备上的 MoE 专家并行"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-02",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   22
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 2,
+  "stem": "Kaplan et al. (2020) 用 C ≈ 6ND 估计训练计算量（N 参数量，D 训练 token 数）。系数 6 的来源是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "前向每个参数 6 FLOPs，反向计算量忽略不计"
+   },
+   {
+    "k": "B",
+    "t": "Adam 优化器每个参数要维护 6 个状态量"
+   },
+   {
+    "k": "C",
+    "t": "前向每个 token 每个参数约 2 FLOPs（一次乘加），反向约为前向的 2 倍（约 4 FLOPs），合计约 6"
+   },
+   {
+    "k": "D",
+    "t": "Transformer 每层有 6 个矩阵乘法"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-03",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   22
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 2,
+  "stem": "用 C ≈ 6ND 估算：一个 7B 参数的模型训练 2T（2×10¹²）个 token，需要大约多少 FLOPs？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "2.8×10²²"
+   },
+   {
+    "k": "B",
+    "t": "8.4×10²²"
+   },
+   {
+    "k": "C",
+    "t": "8.4×10²¹"
+   },
+   {
+    "k": "D",
+    "t": "1.4×10²²"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-04",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   27
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 2,
+  "stem": "Multi-token prediction 有 n 个输出 head，每个都要算词表大小 V 的 logits。Gloeckle et al. (2024) 避免峰值显存随 n 线性增长的办法是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "把额外 head 的 logits 量化成 int8 存储"
+   },
+   {
+    "k": "B",
+    "t": "每个 step 只随机挑一个 head 计算 loss"
+   },
+   {
+    "k": "C",
+    "t": "让额外 head 使用更小的词表"
+   },
+   {
+    "k": "D",
+    "t": "依次对每个 head 做前向和反向，把梯度累积在共享 trunk 的输出上，最后再对 trunk 反向一次；峰值显存从 O(nV + d) 降到 O(V + d)"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-05",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L3",
+  "papers": [
+   9
+  ],
+  "cluster": "scale",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 2,
+  "stem": "`09_gpipe.ipynb`：\n\n```python\n    def forward_pipeline(self, microbatches: List[Tuple[np.ndarray, np.ndarray]], \n                        store_activations: bool = True) -> Tuple[List[np.ndarray], List[List]]:\n        # ...\n        time_step = 0\n        for m in range(M):\n            X_micro, y_micro = microbatches[m]\n            current = X_micro\n            # Forward through each partition\n            for k, partition in enumerate(self.partitions):\n                self.events.append(PipelineEvent(time_step, k, 'forward', m))\n                current, activations = partition.forward(current, store_activations)\n                all_activations[m][k] = activations\n                time_step += 1\n            outputs[m] = current\n        # ...\n\n    def backward_pipeline(self, outputs: List[np.ndarray], \n                         labels: List[np.ndarray],\n                         all_activations: List[List]) -> List[List[List[Tuple]]]:\n        # ...\n        time_step = max(e.time_step for e in self.events) + 1\n        for m in range(M - 1, -1, -1):\n            # ...\n            for k in range(self.K - 1, -1, -1):\n                # ...\n                self.events.append(PipelineEvent(time_step, k, 'backward', m))\n                dout, gradients = partition.backward(dout, activations)\n                all_gradients[m][k] = gradients\n                time_step += 1\n        # ...\n\n    def get_timeline_matrix(self) -> np.ndarray:\n        max_time = max(e.time_step for e in self.events) + 1\n        timeline = np.zeros((self.K, max_time))\n        for event in self.events:\n            value = event.microbatch_id + 1\n            if event.operation == 'backward':\n                value = -value\n            timeline[event.device_id, event.time_step] = value\n        return timeline\n\ndef compute_actual_bubble_time(timeline: np.ndarray) -> float:\n    total_steps = timeline.size\n    bubble_steps = np.sum(timeline == 0)\n    return bubble_steps / total_steps\n```\n\nK = 4 个分区、M = 4 个 micro-batch，跑完一次前向和反向后，`compute_actual_bubble_time(pipeline.get_timeline_matrix())` 返回：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "0"
+   },
+   {
+    "k": "B",
+    "t": "0.25"
+   },
+   {
+    "k": "C",
+    "t": "0.5"
+   },
+   {
+    "k": "D",
+    "t": "0.75"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-06",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [
+   9
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 GPipe (Huang et al. 2019)，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "设备之间只需在分区边界传递激活（前向）和梯度（反向），通信量小"
+   },
+   {
+    "k": "B",
+    "t": "使用 BatchNorm 时，micro-batch 切分完全不影响 BN 的统计量"
+   },
+   {
+    "k": "C",
+    "t": "划分分区时尽量让各分区的估计计算量均衡"
+   },
+   {
+    "k": "D",
+    "t": "要求模型的每一层结构相同才能切分"
+   },
+   {
+    "k": "E",
+    "t": "核心做法是把单个层的矩阵乘法切分到多个设备上"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-07",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   22
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 3,
+  "stem": "以下哪些是 Kaplan et al. (2020) 的结论？",
+  "opts": [
+   {
+    "k": "A",
+    "t": "计算最优的训练应当把每个模型都训练到收敛"
+   },
+   {
+    "k": "B",
+    "t": "更大的模型样本效率更高：达到相同 loss 所需的 token 更少"
+   },
+   {
+    "k": "C",
+    "t": "过拟合的程度只取决于 N 或 D 中的一个，与另一个无关"
+   },
+   {
+    "k": "D",
+    "t": "临界 batch size 主要由当前 loss 决定，与模型大小基本无关"
+   },
+   {
+    "k": "E",
+    "t": "换到另一个文本分布上评测，loss 大致只差一个常数偏移，随规模变化的趋势相同"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-08",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   27
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 Gloeckle et al. (2024) 的 multi-token prediction，正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "训练目标是 Σ_{i=1}^{n} −log P_θ(x_{t+i} | x_{1:t})，n 个 head 共享同一个 trunk 的表示"
+   },
+   {
+    "k": "B",
+    "t": "第 i 个 head 以第 i−1 个 head 的输出为输入，逐级预测更远的 token"
+   },
+   {
+    "k": "C",
+    "t": "DeepSeek-V3 的 MTP 模块按顺序级联、保留完整因果链，与 Gloeckle 等的并行独立 head 不同"
+   },
+   {
+    "k": "D",
+    "t": "与 next-token 基线比较时，必须给 MTP 模型 n 倍的训练 token 才算公平"
+   },
+   {
+    "k": "E",
+    "t": "额外 head 的参数量与 trunk 相当，所以 MTP 模型的总参数约为原来的 n 倍"
+   },
+   {
+    "k": "F",
+    "t": "在小模型的合成任务上，论文观察到 MTP 有助于形成 induction（归纳复制）能力"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-09",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   22
+  ],
+  "cluster": "scale",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 3,
+  "stem": "`22_scaling_laws.ipynb` 的\"同算力下三种策略比较\"（vocab_size 默认 100）：\n\n```python\n        # SimpleLanguageModel.__init__\n        self.capacity = np.log(num_params) / 10.0\n\n    def train(self, dataset_size, num_steps):\n        base_loss = np.log(self.vocab_size)\n        param_factor = 1.0 / (1.0 + self.capacity)\n        data_factor = 1.0 / (1.0 + np.log(dataset_size) / 15.0)\n        train_factor = np.exp(-num_steps / 1000.0)\n        loss = base_loss * param_factor * data_factor * (0.5 + 0.5 * train_factor)\n        loss += np.random.randn() * 0.05  # Add noise\n        return max(loss, 1.0)  # Floor at 1.0\n\nC = 1e8\n\n# Strategy 1: Large model, small data\nN_large = int(C / 1000)\nD_small = 1000\nmodel_large = SimpleLanguageModel(num_params=N_large)\nloss_large_model = model_large.train(D_small, 1000)\n\n# Strategy 2: Small model, large data\nN_small = 1000\nD_large = int(C / 1000)\nmodel_small = SimpleLanguageModel(num_params=N_small)\nloss_small_model = model_small.train(D_large, 1000)\n\nN_balanced = int(np.sqrt(C / 6))\nD_balanced = int(np.sqrt(C / 6))\nmodel_balanced = SimpleLanguageModel(num_params=N_balanced)\nloss_balanced = model_balanced.train(D_balanced, 1000)\n# ...\nprint(f\"   Loss = {loss_balanced:.4f} ← BEST\")\n```\n\n以下说法正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "这个比较复现了用真实训练得到的 IsoFLOP 曲线"
+   },
+   {
+    "k": "B",
+    "t": "三种策略的算力并不相同：平衡策略的 N·D 只有约 C/6，另外两种都是 C"
+   },
+   {
+    "k": "C",
+    "t": "loss 公式对 N、D 是幂律形式，所以在它的输出上拟合幂律是合理的"
+   },
+   {
+    "k": "D",
+    "t": "\"← BEST\" 是写死在字符串里的，与三个 loss 的实际大小无关"
+   },
+   {
+    "k": "E",
+    "t": "不计噪声，按这个公式算，平衡策略的 loss 反而是三者中最高的"
+   }
+  ]
+ },
+ {
+  "id": "P-scale-10",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   9
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 2,
+  "stem": "GPipe 使用 re-materialization（前向只保存分区边界的激活，反向时重算分区内部的激活）后，每个加速器的峰值激活内存从 O(N×L) 降到 O(________)。（N：mini-batch 大小，L：层数，K：分区数，M：micro-batch 数）",
+  "opts": []
+ },
+ {
+  "id": "P-scale-11",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   22
+  ],
+  "cluster": "scale",
+  "tags": [],
+  "points": 2,
+  "stem": "取 Kaplan et al. (2020) 的数据幂律 L(D) = (D_c/D)^0.095（模型足够大、早停）：数据量增大 10 倍，loss 变为原来的约 ________ 倍；要让 loss 降低 10%，数据量约需增大 ________ 倍。",
+  "opts": []
+ },
+ {
+  "id": "P-scale-12",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   27
+  ],
+  "cluster": "scale",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 2,
+  "stem": "`27_multi_token_prediction.ipynb`（vocab_size = 50；embedding、RNN、输出层权重都是 `np.random.randn(...) * 0.01`，偏置为 0）：\n\n```python\ndef train_single_token(model, sequences, epochs=50, lr=0.01):\n    losses = []\n    for epoch in range(epochs):\n        epoch_loss = 0\n        for seq in sequences:\n            # Predict next token at each position\n            for i in range(len(seq) - 1):\n                input_tokens = seq[:i+1]\n                target_token = seq[i+1]\n                # Forward\n                predictions, _ = model.forward(input_tokens)\n                pred_probs = predictions[-1]  # Last position prediction\n                # Loss\n                loss = -np.log(pred_probs[target_token] + 1e-8)\n                epoch_loss += loss\n                # Backward (simplified - just track loss)\n        avg_loss = epoch_loss / (len(sequences) * (len(seq) - 1))\n        losses.append(avg_loss)\n    return losses\n```\n\n`train_multi_token` 结构相同，对 3 个 head 的 loss 取平均。画出的两条学习曲线，数值都约为 ________（保留两位小数），并且随 epoch ________。",
+  "opts": []
+ },
+ {
+  "id": "P-scale-13",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   22
+  ],
+  "cluster": "scale",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`22_scaling_laws.ipynb`（vocab_size 默认 100；数据量扫描时 num_params = 1e6、num_steps = 1000）：\n\n```python\n        # SimpleLanguageModel.__init__\n        self.capacity = np.log(num_params) / 10.0\n\n    def train(self, dataset_size, num_steps):\n        base_loss = np.log(self.vocab_size)\n        param_factor = 1.0 / (1.0 + self.capacity)\n        data_factor = 1.0 / (1.0 + np.log(dataset_size) / 15.0)\n        train_factor = np.exp(-num_steps / 1000.0)\n        loss = base_loss * param_factor * data_factor * (0.5 + 0.5 * train_factor)\n        loss += np.random.randn() * 0.05  # Add noise\n        return max(loss, 1.0)  # Floor at 1.0\n\ndataset_sizes = np.array([1e3, 5e3, 1e4, 5e4, 1e5, 5e5, 1e6, 5e6, 1e7])\nfor D in dataset_sizes:\n    model = SimpleLanguageModel(num_params=int(num_params))\n    loss = model.train(int(D), num_steps)\n    losses_by_data.append(loss)\ndata_fit, _ = curve_fit(scaling_law_params, dataset_sizes, losses_by_data)\n\nfamous_models = [\n    (1.5e8, 'GPT-2'),\n    (1.75e9, 'GPT-3'),\n    (1.75e11, 'GPT-3.5'),\n]\n```\n\n（`scaling_law_params(x, a, b) = a * x^(-b)`）\n\n(a) 为什么拟合出的指数 b 不能作为 scaling law 的证据？请具体到这段代码会输出什么。\n(b) 外推图标注的模型规模有什么事实错误？\n(c) 设计一个能真正检验 L(N) 幂律的最小实验。",
+  "opts": []
+ },
+ {
+  "id": "P-scale-14",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L2",
+  "papers": [
+   9
+  ],
+  "cluster": "scale",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`09_gpipe.ipynb`：\n\n```python\ndef simulate_pipeline_parallelism(model_layers: List[Layer],\n                                 batch_size: int,\n                                 num_devices: int,\n                                 num_microbatches: int) -> Dict[str, float]:\n    # ...\n    return {\n        'forward': total_forward_steps * layers_per_device,\n        'backward': total_backward_steps * layers_per_device,\n        'communication': 0,  # No inter-device communication!\n        'total': total_time,\n        # ...\n    }\n\ndef estimate_memory_usage(M: int, K: int, layers_per_partition: int, \n                         activation_size_mb: float, with_remat: bool) -> float:\n    if with_remat:\n        # Only store boundary inputs (K per micro-batch)\n        return M * K * activation_size_mb\n    else:\n        # Store all intermediate activations\n        total_layers = K * layers_per_partition\n        return M * total_layers * activation_size_mb\n```\n\nnotebook 用 M=8、K=4、layers_per_partition=3、activation_size_mb=10 调用它，输出 960 MB（无 remat）和 320 MB（有 remat）。\n\n(a) `'communication': 0` 错在哪里？流水线并行实际要传什么？为什么量通常不大？\n(b) `with_remat=True` 返回的 320 MB 是什么量？和\"每个设备的峰值激活内存\"相比漏掉了什么？按同样的假设（每层每个 micro-batch 的激活 10 MB，边界激活也按 10 MB 计），估算每个设备的峰值。\n(c) re-materialization 的计算代价大约是多少？说明估算依据。",
+  "opts": []
+ },
+ {
+  "id": "P-rnn-01",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   2
+  ],
+  "cluster": "rnn",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`02_char_rnn_karpathy.ipynb` 的训练循环：\n\n```python\ninputs = [char_to_ix[ch] for ch in data[p:p+seq_length]]\ntargets = [char_to_ix[ch] for ch in data[p+1:p+seq_length+1]]\n```\n\n若 `data = \"hello world\"`，`p = 0`，`seq_length = 4`，`targets` 对应的字符串是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "\"hell\""
+   },
+   {
+    "k": "B",
+    "t": "\"ello\""
+   },
+   {
+    "k": "C",
+    "t": "\"o\""
+   },
+   {
+    "k": "D",
+    "t": "\"ello \""
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-02",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   2
+  ],
+  "cluster": "rnn",
+  "tags": [
+   "code"
+  ],
+  "points": 2,
+  "stem": "`02_char_rnn_karpathy.ipynb` 用 Adagrad 更新参数：\n\n```python\nmem += dparam * dparam\nparam += -learning_rate * dparam / np.sqrt(mem + 1e-8)\n```\n\n假设某个参数每一步收到的梯度都恰好是同一个常数 g ≠ 0，第 n 步的更新量大小约为：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "learning_rate · |g|，不随 n 变化"
+   },
+   {
+    "k": "B",
+    "t": "learning_rate，不随 n 变化"
+   },
+   {
+    "k": "C",
+    "t": "learning_rate / n"
+   },
+   {
+    "k": "D",
+    "t": "learning_rate / √n"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-03",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L1",
+  "papers": [
+   3
+  ],
+  "cluster": "rnn",
+  "tags": [],
+  "points": 2,
+  "stem": "colah《Understanding LSTM Networks》在介绍 LSTM 变体时讲到 GRU（Cho et al. 2014）。GRU 相对标准 LSTM 的主要变化是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "增加 peephole 连接，让各个门能看到 cell state"
+   },
+   {
+    "k": "B",
+    "t": "把遗忘门和输入门合并为一个 update gate，并把 cell state 和 hidden state 合并"
+   },
+   {
+    "k": "C",
+    "t": "去掉所有门，只保留 cell state 的加法更新"
+   },
+   {
+    "k": "D",
+    "t": "把候选值和输出中的 tanh 换成 ReLU，以缓解梯度消失"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-04",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   21
+  ],
+  "cluster": "rnn",
+  "tags": [],
+  "points": 2,
+  "stem": "Deep Speech 2 (Amodei et al. 2016) 提出的 SortaGrad 是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "只在第一个 epoch 按 minibatch 中语音的长度从短到长遍历，之后恢复随机顺序"
+   },
+   {
+    "k": "B",
+    "t": "整个训练过程中，minibatch 始终按语音长度从短到长排列"
+   },
+   {
+    "k": "C",
+    "t": "按每条样本当前的 CTC loss 排序，loss 大的难样本优先训练"
+   },
+   {
+    "k": "D",
+    "t": "按梯度范数排序，梯度过大的 minibatch 推迟到训练后期"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-05",
+  "form": null,
+  "pool": "practice",
+  "type": "single",
+  "difficulty": "L2",
+  "papers": [
+   26
+  ],
+  "cluster": "rnn",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 2,
+  "stem": "`26_cs231n_cnn_fundamentals.ipynb` 先在验证集上调 kNN：\n\n```python\nk_values = [1, 3, 5, 10, 20]\nfor k in k_values:\n    knn.k = k\n    acc_l1 = knn.compute_accuracy(X_val_flat[:100], y_val[:100], distance_metric='l1')\n    acc_l2 = knn.compute_accuracy(X_val_flat[:100], y_val[:100], distance_metric='l2')\n    accuracies_l1.append(acc_l1)\n    accuracies_l2.append(acc_l2)\n```\n\n之后打印最终对比表：\n\n```python\ntest_acc_softmax = softmax_clf.accuracy(X_test_flat, y_test)\ntest_acc_svm = svm_clf.accuracy(X_test_flat, y_test)\nprint(\"Final Test Accuracy:\")\nprint(f\"  Softmax: {test_acc_softmax:.2%}\")\nprint(f\"  SVM:     {test_acc_svm:.2%}\")\nprint(f\"  kNN:     {max(max(accuracies_l1), max(accuracies_l2)):.2%} (baseline)\")\n```\n\n这张对比表最主要的方法学问题是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "kNN 那一行是在同 100 个验证样本上从 10 种配置里挑出的最高验证准确率，却和另外两行的测试准确率并列，结果偏乐观，不可比"
+   },
+   {
+    "k": "B",
+    "t": "kNN 应该只用 L1 距离，混入 L2 不公平"
+   },
+   {
+    "k": "C",
+    "t": "验证集和训练集由同一个生成函数产生，存在数据泄漏"
+   },
+   {
+    "k": "D",
+    "t": "Softmax/SVM 训练时只在 `X_train[:1000]` 上看训练准确率，所以它们的测试准确率无效"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-06",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L1",
+  "papers": [
+   26
+  ],
+  "cluster": "rnn",
+  "tags": [],
+  "points": 3,
+  "stem": "关于权重初始化（CS231n），正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "把所有权重初始化为 0，同一层的神经元会收到相同的梯度，无法打破对称性"
+   },
+   {
+    "k": "B",
+    "t": "在很深的 tanh 网络里用 0.01·randn 初始化，激活会逐层变大，最后全部饱和在 ±1"
+   },
+   {
+    "k": "C",
+    "t": "He 初始化取 Var(W) = 2 / fan_in，是针对 ReLU 推导的"
+   },
+   {
+    "k": "D",
+    "t": "偏置也必须随机初始化，否则同样无法打破对称性"
+   },
+   {
+    "k": "E",
+    "t": "Xavier/Glorot 初始化的目标是让各层激活（和梯度）的方差保持不变，推导时假设激活函数在 0 附近近似线性（如 tanh）"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-07",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   21
+  ],
+  "cluster": "rnn",
+  "tags": [],
+  "points": 3,
+  "stem": "关于 CTC 损失（Graves et al. 2006，Deep Speech 2 的训练目标），正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "CTC 训练需要事先提供帧级对齐标注"
+   },
+   {
+    "k": "B",
+    "t": "CTC 假设给定输入后，各帧的输出相互条件独立"
+   },
+   {
+    "k": "C",
+    "t": "CTC 可以输出比输入帧数更长的标签序列"
+   },
+   {
+    "k": "D",
+    "t": "blank 只能插在两个标签之间，不能出现在路径的开头或结尾"
+   },
+   {
+    "k": "E",
+    "t": "CTC 隐含的输入—标签对齐是单调的（不能交叉、不能回头）"
+   },
+   {
+    "k": "F",
+    "t": "用前向变量 α 计算 p(l|x) 的时间复杂度是 O(T·S)，S 为扩展序列长度"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-08",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L3",
+  "papers": [
+   4
+  ],
+  "cluster": "rnn",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 3,
+  "stem": "`04_rnn_regularization.ipynb` 用下面的代码比较三种策略的隐状态（两个类都没有训练，权重各自用 `np.random.randn(...) * 0.01` 初始化）：\n\n```python\nclass RNNWithVariationalDropout:\n    def forward(self, inputs, dropout_rate=0.0, training=True):\n        h = np.zeros((self.hidden_size, 1))\n        outputs = []\n        hidden_states = []\n        # Generate masks ONCE for entire sequence\n        if training and dropout_rate > 0:\n            input_mask = (np.random.rand(self.input_size, 1) > dropout_rate).astype(float) / (1 - dropout_rate)\n            hidden_mask = (np.random.rand(self.hidden_size, 1) > dropout_rate).astype(float) / (1 - dropout_rate)\n        ...\n        for x in inputs:\n            x_dropped = x * input_mask\n            h = np.tanh(np.dot(self.W_xh, x_dropped) + np.dot(self.W_hh, h) + self.bh)\n            h_dropped = h * hidden_mask\n            y = np.dot(self.W_hy, h_dropped) + self.by\n            outputs.append(y)\n            hidden_states.append(h)\n        return outputs, hidden_states\n\nrnn = RNNWithDropout(input_size=10, hidden_size=20, output_size=10)\nvar_rnn = RNNWithVariationalDropout(input_size=10, hidden_size=20, output_size=10)\n\n_, h_no_dropout = rnn.forward(test_sequence, dropout_rate=0.0, training=False)\n_, h_standard = rnn.forward(test_sequence, dropout_rate=0.5, training=True)\n_, h_variational = var_rnn.forward(test_sequence, dropout_rate=0.5, training=True)\n# 然后把三者画成三张热力图并排比较\n```\n\n关于这个比较，正确的批评是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "No Dropout 那张图用了 `training=False`，和另外两张不可比"
+   },
+   {
+    "k": "B",
+    "t": "`rnn` 和 `var_rnn` 是两套独立随机初始化的权重，三张图的差异混入了权重本身的差异"
+   },
+   {
+    "k": "C",
+    "t": "`hidden_states` 记录的是乘 `hidden_mask` 之前的 h，所以 hidden_mask 的效果在图里根本看不到"
+   },
+   {
+    "k": "D",
+    "t": "Variational 那张图中同一批隐藏单元在所有时间步都恰好为 0，正说明了 mask 共享"
+   },
+   {
+    "k": "E",
+    "t": "两个模型都没有训练，每种策略也只采样了一次，这些图不能说明哪种 dropout 正则化效果更好"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-09",
+  "form": null,
+  "pool": "practice",
+  "type": "multi",
+  "difficulty": "L2",
+  "papers": [
+   3
+  ],
+  "cluster": "rnn",
+  "tags": [
+   "code"
+  ],
+  "points": 3,
+  "stem": "`03_lstm_understanding.ipynb`：\n\n```python\nconcat = np.vstack([x, h_prev])\nf = sigmoid(np.dot(self.Wf, concat) + self.bf)\ni = sigmoid(np.dot(self.Wi, concat) + self.bi)\nc_tilde = np.tanh(np.dot(self.Wc, concat) + self.bc)\nc_next = f * c_prev + i * c_tilde\no = sigmoid(np.dot(self.Wo, concat) + self.bo)\nh_next = o * np.tanh(c_next)\n```\n\n正确的是：",
+  "opts": [
+   {
+    "k": "A",
+    "t": "四个门和候选值都以同一个 concat = [x; h_prev] 作为输入"
+   },
+   {
+    "k": "B",
+    "t": "c_next 的每个分量也被限制在 (−1, 1) 之内"
+   },
+   {
+    "k": "C",
+    "t": "这是带 peephole 连接的 LSTM 变体"
+   },
+   {
+    "k": "D",
+    "t": "h_next 的每个分量都严格落在 (−1, 1) 之内"
+   },
+   {
+    "k": "E",
+    "t": "输出门作用在 tanh 之内，即 h = tanh(o ⊙ c)"
+   },
+   {
+    "k": "F",
+    "t": "遗忘门和输入门各自独立计算，没有 i = 1 − f 的约束"
+   }
+  ]
+ },
+ {
+  "id": "P-rnn-10",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L1",
+  "papers": [
+   26
+  ],
+  "cluster": "rnn",
+  "tags": [],
+  "points": 2,
+  "stem": "CS231n 的 sanity check：10 分类、权重很小（所有类分数 ≈ 0）、正则化关掉时，softmax（交叉熵）损失的初始值约为 ________；margin 为 1 的多类 SVM（hinge）损失的初始值约为 ________。",
+  "opts": []
+ },
+ {
+  "id": "P-rnn-11",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L2",
+  "papers": [
+   4
+  ],
+  "cluster": "rnn",
+  "tags": [],
+  "points": 2,
+  "stem": "Zaremba et al. (2014) 在 Penn Treebank 上用词级困惑度（perplexity）评估语言模型。若模型在测试集上的平均每词交叉熵为 4.36 nats，困惑度约为 ________；若同一个模型的交叉熵用 bits 表示，约为 ________ bits/词。",
+  "opts": []
+ },
+ {
+  "id": "P-rnn-12",
+  "form": null,
+  "pool": "practice",
+  "type": "fill",
+  "difficulty": "L3",
+  "papers": [
+   26
+  ],
+  "cluster": "rnn",
+  "tags": [],
+  "points": 2,
+  "stem": "Adam（β₁ = 0.9，β₂ = 0.999，ε 可忽略），参数在第 1 步收到梯度 g ≠ 0，m、v 都从 0 开始。做偏差校正时，第 1 步更新量的大小 ≈ ________ × lr；如果去掉偏差校正、直接用 m/√v，第 1 步更新量的大小 ≈ ________ × lr。",
+  "opts": []
+ },
+ {
+  "id": "P-rnn-13",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   2
+  ],
+  "cluster": "rnn",
+  "tags": [
+   "code"
+  ],
+  "points": 5,
+  "stem": "`02_char_rnn_karpathy.ipynb` 的反向传播与训练循环（节选）：\n\n```python\ndef backward(self, xs, hs, ps, targets):\n    ...\n    dhnext = np.zeros_like(hs[0])\n    for t in reversed(range(len(targets))):\n        ...\n        dh = np.dot(self.Why.T, dy) + dhnext\n        dhraw = (1 - hs[t] ** 2) * dh  # tanh derivative\n        ...\n        dhnext = np.dot(self.Whh.T, dhraw)\n    # Clip gradients to prevent exploding gradients\n    for dparam in [dWxh, dWhh, dWhy, dbh, dby]:\n        np.clip(dparam, -5, 5, out=dparam)\n    return dWxh, dWhh, dWhy, dbh, dby\n\n# 训练循环中（seq_length = 25）：\nxs, hs, ys, ps = rnn.forward(inputs, hprev)\n...\np += seq_length\nhprev = hs[len(inputs) - 1]\n```\n\n1. `np.clip(dparam, -5, 5)` 和按全局范数裁剪（Pascanu et al. 2013）有什么区别？举一个例子说明。\n2. 每段的 `hprev` 接着上一段的最后隐状态，但 `dhnext` 每段从 0 开始。这对模型能学到的依赖长度意味着什么？\n3. 去掉裁剪后，vanilla RNN 为什么特别容易出现梯度爆炸？",
+  "opts": []
+ },
+ {
+  "id": "P-rnn-14",
+  "form": null,
+  "pool": "practice",
+  "type": "short",
+  "difficulty": "L3",
+  "papers": [
+   26
+  ],
+  "cluster": "rnn",
+  "tags": [
+   "code",
+   "critique"
+  ],
+  "points": 5,
+  "stem": "`26_cs231n_cnn_fundamentals.ipynb` 的 \"Babysitting\" 一节（节选）。前面的 `train_neural_network` 用的是**恒定学习率 1e-3 的 SGD+Momentum**，没有用任何学习率衰减。\n\n```python\ndef plot_training_diagnostics(history: Dict):\n    ...\n    # Plot 3: Learning rate schedule\n    iters_range = np.arange(len(history['loss_history']))\n    lrs = [learning_rate_schedule(1e-3, it, 'step') for it in iters_range]\n    axes[0, 2].plot(iters_range, lrs)\n    axes[0, 2].set_title('Learning Rate Schedule')\n    ...\n\n# Check 1: Expected initial loss\nexpected_loss = sanity_check_loss(10)   # 返回 -np.log(1.0 / 10)\nprint(f\"\\n1. Expected initial loss (10 classes): {expected_loss:.4f}\")\n\n# Check 2: Overfit small dataset\nsmall_net = TwoLayerNet()\nlosses_overfit, accs_overfit = overfit_small_dataset(small_net, X_small, y_small)\nprint(f\"   Initial accuracy: {accs_overfit[0]:.2%}\")\nprint(f\"   Final accuracy:   {accs_overfit[-1]:.2%}\")\nprint(f\"   ✓ Can overfit! (Should reach ~100%)\")\n\n# Check 3: Plot diagnostics\nplot_training_diagnostics(nn_history)\n```\n\n1. \"Learning Rate Schedule\" 子图有什么问题？\n2. Check 1 实际检查了什么？正确的做法是什么？\n3. Check 2 的输出逻辑有什么问题？应该怎么改？",
+  "opts": []
+ }
+]
